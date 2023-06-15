@@ -1,2 +1,4 @@
+[core]
+    remote = rec_sys
 ['remote "rec_sys"']
     url = gdrive://1IcbdbYcfgjDwm0QRis9eaG-CCfjd-XSZ
