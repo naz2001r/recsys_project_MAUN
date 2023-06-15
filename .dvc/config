@@ -2,3 +2,4 @@
     remote = rec_sys
 ['remote "rec_sys"']
     url = gdrive://1IcbdbYcfgjDwm0QRis9eaG-CCfjd-XSZ
+    gdrive_acknowledge_abuse = true
