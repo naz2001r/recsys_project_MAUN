@@ -1,0 +1,5 @@
+outs:
+- md5: 7ab62f5bddcc82f47cbed0615530805a
+  size: 30682276
+  hash: md5
+  path: BX-Book-Ratings.csv
