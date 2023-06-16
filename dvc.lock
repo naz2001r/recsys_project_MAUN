@@ -1,0 +1,19 @@
+schema: '2.0'
+stages:
+  prepare:
+    cmd: python src/steps/prepare.py data/BX-Book-Ratings.csv data/prepared/BX-Book-Ratings-Prepared.csv
+    deps:
+    - path: data/BX-Book-Ratings.csv
+      hash: md5
+      md5: 7ab62f5bddcc82f47cbed0615530805a
+      size: 30682276
+    - path: src/steps/prepare.py
+      hash: md5
+      md5: 2e201bf5f928cb7fb81a08f0e5b6fa01
+      size: 560
+    outs:
+    - path: data/prepared
+      hash: md5
+      md5: cf1492a393fcbdf34a704c681c01a4d9.dir
+      size: 23783633
+      nfiles: 1
