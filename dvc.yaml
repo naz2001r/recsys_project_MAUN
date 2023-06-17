@@ -1,8 +1,27 @@
 stages:
   prepare:
-    cmd: python src/steps/prepare.py data/BX-Book-Ratings.csv data/prepared/BX-Book-Ratings-Prepared.csv
+    cmd: python src/steps/prepare.py data/BX-Book-Ratings.csv data/split
     deps:
     - data/BX-Book-Ratings.csv
     - src/steps/prepare.py
     outs:
-    - data/prepared
+    - data/split
+
+  train:
+    cmd: python src/steps/train.py data/split/train.csv data/split/test.csv
+    deps:
+    - data/split/train.csv
+    - data/split/test.csv
+    - src/steps/train.py
+    outs:
+    - data/models
+
+  evaluate:
+    cmd: python src/steps/evaluate.py data/split/test.csv 
+    deps:
+    - data/split/test.csv
+    - src/steps/evaluate.py
+    - data/models
+    metrics:
+    - data/eval/metrics.json:
+        cache: false

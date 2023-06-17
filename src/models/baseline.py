@@ -1,8 +1,10 @@
 import numpy as np
 import pandas as pd
+from base_model import BaseModel
 
-class Baseline:
-    METHODS = ['avg', 'sum']
+class Baseline(BaseModel):
+    MODEL_NAME = 'baseline'
+    METHODS = ['mean', 'sum']
 
     def __init__(self, method: str, bookid: str = "ISBN", bookrank: str = "Book-Rating") -> None:
         """
@@ -16,10 +18,14 @@ class Baseline:
         Raises:
             ValueError: If the method is not one of the available methods.
         """
+
+        super().__init__(f'{self.MODEL_NAME}_{method}')
+
         if method in self.METHODS:
             self.method = method
         else:
             raise ValueError(f"Unknown method '{method}'. Must be one of {self.METHODS}.")
+        
         self.rank = None
         self.bookid = bookid
         self.bookrank = bookrank
@@ -46,5 +52,5 @@ class Baseline:
         Returns:
             np.array: An array of predicted book IDs for the given users.
         """
-        return np.array(self.rank.nlargest(k, self.bookrank)[self.bookid].to_list() * len(users))
+        return np.array([self.rank.nlargest(k, self.bookrank)[self.bookid].to_list()] * len(users))
 

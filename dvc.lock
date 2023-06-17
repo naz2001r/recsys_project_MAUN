@@ -1,7 +1,7 @@
 schema: '2.0'
 stages:
   prepare:
-    cmd: python src/steps/prepare.py data/BX-Book-Ratings.csv data/prepared/BX-Book-Ratings-Prepared.csv
+    cmd: python src/steps/prepare.py data/BX-Book-Ratings.csv data/split
     deps:
     - path: data/BX-Book-Ratings.csv
       hash: md5
@@ -9,11 +9,53 @@ stages:
       size: 30682276
     - path: src/steps/prepare.py
       hash: md5
-      md5: 2e201bf5f928cb7fb81a08f0e5b6fa01
-      size: 560
+      md5: 375a9e44f5fb91972959034747f822e7
+      size: 1052
     outs:
-    - path: data/prepared
+    - path: data/split
       hash: md5
-      md5: cf1492a393fcbdf34a704c681c01a4d9.dir
-      size: 23783633
+      md5: 2fb7e062cd013ee83fe832d52521e973.dir
+      size: 23783685
+      nfiles: 3
+  train:
+    cmd: python src/steps/train.py data/split/train.csv data/split/test.csv
+    deps:
+    - path: data/split/test.csv
+      hash: md5
+      md5: c85a4051effdc1cdbd15c57d0e4527e6
+      size: 7134980
+    - path: data/split/train.csv
+      hash: md5
+      md5: 94381a0320bcac8e464ee2644479df97
+      size: 16648679
+    - path: src/steps/train.py
+      hash: md5
+      md5: 2911e95a87239a0295073c11be3062d5
+      size: 612
+    outs:
+    - path: data/models
+      hash: md5
+      md5: c028c9554e75f80490e4b41876fddc7e.dir
+      size: 5786201
       nfiles: 1
+  evaluate:
+    cmd: python src/steps/evaluate.py data/split/test.csv
+    deps:
+    - path: data/models
+      hash: md5
+      md5: c028c9554e75f80490e4b41876fddc7e.dir
+      size: 5786201
+      nfiles: 1
+    - path: data/split/test.csv
+      hash: md5
+      md5: c85a4051effdc1cdbd15c57d0e4527e6
+      size: 7134980
+    - path: src/steps/evaluate.py
+      hash: md5
+      md5: c4e5dc085f0713b8f38c8d64ec94fec4
+      size: 1322
+    outs:
+    - path: data/eval/metrics.json
+      hash: md5
+      md5: 080991b09fb3cfd557a8ca7c1c24bc7c
+      size: 89

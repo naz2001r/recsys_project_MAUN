@@ -1,5 +1,14 @@
 prepare:
-train:
-  alpha: 0.1
-  split: 0.20
+  train_size: 0.70
+  test_size: 0.30
   seed: 20170428
+  stratify_column: 'ISBN'
+
+train:
+  model: 'baseline'
+  method: 'mean'
+
+evaluate:
+  user_column: 'User-ID'
+  book_column: 'ISBN'
+  k_list: [5, 10, 15]
