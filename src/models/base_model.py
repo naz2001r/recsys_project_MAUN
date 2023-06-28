@@ -30,6 +30,9 @@ class BaseModel:
         
         Args:
             file_name (str): The name of the file to load the model from.
+        
+        Returns:
+            object: The loaded model.
         """
         return pickle.load(open(file_name, 'rb'))
     
