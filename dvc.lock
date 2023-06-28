@@ -1,61 +1,62 @@
 schema: '2.0'
 stages:
   prepare:
-    cmd: python src/steps/prepare.py data/BX-Book-Ratings.csv data/split
+    cmd: python src/steps/prepare.py data/raw/ data/split
     deps:
-    - path: data/BX-Book-Ratings.csv
+    - path: data/raw
       hash: md5
-      md5: 7ab62f5bddcc82f47cbed0615530805a
-      size: 30682276
+      md5: ed7dbcbdabddccca552e276f80fa29ad.dir
+      size: 120753872
+      nfiles: 3
     - path: src/steps/prepare.py
       hash: md5
-      md5: 375a9e44f5fb91972959034747f822e7
-      size: 1052
+      md5: 8bcd4599bea280a3d0ad3537fda303cd
+      size: 7142
     outs:
     - path: data/split
       hash: md5
-      md5: 2fb7e062cd013ee83fe832d52521e973.dir
-      size: 23783685
-      nfiles: 3
+      md5: a78292abd8ae668ab057d7f8bfb18892.dir
+      size: 88336996
+      nfiles: 4
   train:
     cmd: python src/steps/train.py data/split/train.csv data/split/test.csv
     deps:
     - path: data/split/test.csv
       hash: md5
-      md5: c85a4051effdc1cdbd15c57d0e4527e6
-      size: 7134980
+      md5: fff019450dc23925d5d4d116b57f34df
+      size: 13247918
     - path: data/split/train.csv
       hash: md5
-      md5: 94381a0320bcac8e464ee2644479df97
-      size: 16648679
+      md5: 2f0843eea555dbe6ba51aaafadff10e1
+      size: 30920580
     - path: src/steps/train.py
       hash: md5
-      md5: 2911e95a87239a0295073c11be3062d5
-      size: 612
+      md5: 7879bdf6336c5c470a819191d5ce3f5c
+      size: 639
     outs:
     - path: data/models
       hash: md5
-      md5: c028c9554e75f80490e4b41876fddc7e.dir
-      size: 5786201
+      md5: dfc51010a6b7461750c8ebcf1dc96919.dir
+      size: 2473628
       nfiles: 1
   evaluate:
     cmd: python src/steps/evaluate.py data/split/test.csv
     deps:
     - path: data/models
       hash: md5
-      md5: c028c9554e75f80490e4b41876fddc7e.dir
-      size: 5786201
+      md5: dfc51010a6b7461750c8ebcf1dc96919.dir
+      size: 2473628
       nfiles: 1
     - path: data/split/test.csv
       hash: md5
-      md5: c85a4051effdc1cdbd15c57d0e4527e6
-      size: 7134980
+      md5: fff019450dc23925d5d4d116b57f34df
+      size: 13247918
     - path: src/steps/evaluate.py
       hash: md5
-      md5: c4e5dc085f0713b8f38c8d64ec94fec4
-      size: 1322
+      md5: e5a657dcf07a3ec8c248fb07c547f5ae
+      size: 1368
     outs:
     - path: data/eval/metrics.json
       hash: md5
-      md5: 080991b09fb3cfd557a8ca7c1c24bc7c
+      md5: 5072b12aea2a94b2b2322497386797e6
       size: 89

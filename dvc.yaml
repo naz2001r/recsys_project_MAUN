@@ -1,8 +1,8 @@
 stages:
   prepare:
-    cmd: python src/steps/prepare.py data/BX-Book-Ratings.csv data/split
+    cmd: python src/steps/prepare.py data/raw/ data/split
     deps:
-    - data/BX-Book-Ratings.csv
+    - data/raw
     - src/steps/prepare.py
     outs:
     - data/split

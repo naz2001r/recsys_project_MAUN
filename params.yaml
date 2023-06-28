@@ -3,6 +3,9 @@ prepare:
   test_size: 0.30
   seed: 20170428
   stratify_column: 'ISBN'
+  users_file: "BX-Users.csv"
+  book_file: 'BX-Books.csv'
+  rate_file: 'BX-Book-Ratings.csv'
 
 train:
   model: 'baseline'
