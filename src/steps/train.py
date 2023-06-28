@@ -3,7 +3,6 @@ import yaml
 import pandas as pd
 import sys
 sys.path.append('.\\src\\models\\')
-from baseline import Baseline
 
 if len(sys.argv) != 3:
     sys.stderr.write('Arguments error. Usage:\n')
@@ -22,7 +21,15 @@ method = params['method']
 train_df = pd.read_csv(train_file)
 test_df = pd.read_csv(test_file)
 
-train_model = Baseline(method)
-train_model.train(train_df)
+if model == 'baseline':
+    from baseline import Baseline
+    train_model = Baseline(method)
 
-train_model.dump(f'{model}_{method}')
+elif model == 'CollaborativeFiltering':
+    from collab_filter_model import CollaborativeFiltering
+    train_model = CollaborativeFiltering()
+
+else:
+    pass
+
+train_model.dump(f'{model}_{method}' if method else model)
