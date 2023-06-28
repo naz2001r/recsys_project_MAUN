@@ -32,4 +32,6 @@ elif model == 'CollaborativeFiltering':
 else:
     pass
 
+train_model.train(train_df)
+
 train_model.dump(f'{model}_{method}' if method else model)
