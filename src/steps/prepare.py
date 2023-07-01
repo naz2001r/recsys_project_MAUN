@@ -2,7 +2,6 @@ import sys
 import os
 import yaml
 import pandas as pd
-from sklearn.model_selection import train_test_split
 import numpy as np
 pd.set_option('mode.chained_assignment', None)
 import warnings
@@ -11,17 +10,13 @@ warnings.filterwarnings("ignore")
 if len(sys.argv) != 3:
     sys.stderr.write('Arguments error. Usage:\n')
     sys.stderr.write(
-        '\tpython3 prepare.py input_file output-dir\n'
+        '\tpython3 prepare.py input_dir output-dir\n'
     )
     sys.exit(1)
 
 output_dir = sys.argv[2]
 
 params = yaml.safe_load(open('params.yaml'))['prepare']
-train_size = params['train_size']
-test_size = params['test_size']
-seed = params['seed']
-stratify_column = params['stratify_column']
 rate_file = params['rate_file']
 users_file = params['users_file']
 book_file = params['book_file']
@@ -121,19 +116,3 @@ dataset = users.copy()
 dataset = pd.merge(dataset,ratings_explicit,on='User-ID')
 dataset = pd.merge(dataset,books,on='ISBN')
 dataset.to_csv(os.path.join(output_dir, 'preprocessed.csv'),index=False)
-
-train, test = train_test_split(
-    dataset.index,
-    train_size=train_size,
-    test_size=test_size,
-    random_state=seed
-)
-
-train = dataset.loc[train]
-test = dataset.loc[test]
-val = dataset[(~dataset.index.isin(train.index)) & (~dataset.index.isin(test.index))]
-
-
-train.to_csv(os.path.join(output_dir, 'train.csv'), index=False)
-test.to_csv(os.path.join(output_dir, 'test.csv'), index=False)
-val.to_csv(os.path.join(output_dir, 'val.csv'), index=False)

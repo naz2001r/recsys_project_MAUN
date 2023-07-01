@@ -1,8 +1,16 @@
 stages:
   prepare:
-    cmd: python src/steps/prepare.py data/raw/ data/split
+    cmd: python src/steps/prepare.py data/raw/ data/prepared
     deps:
     - data/raw
+    - src/steps/prepare.py
+    outs:
+    - data/prepared
+
+  split:
+    cmd: python src/steps/split.py data/prepared/ data/split
+    deps:
+    - data/prepared
     - src/steps/prepare.py
     outs:
     - data/split

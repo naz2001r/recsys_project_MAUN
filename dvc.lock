@@ -1,7 +1,7 @@
 schema: '2.0'
 stages:
   prepare:
-    cmd: python src/steps/prepare.py data/raw/ data/split
+    cmd: python src/steps/prepare.py data/raw/ data/prepared
     deps:
     - path: data/raw
       hash: md5
@@ -10,33 +10,33 @@ stages:
       nfiles: 3
     - path: src/steps/prepare.py
       hash: md5
-      md5: 8bcd4599bea280a3d0ad3537fda303cd
-      size: 7142
+      md5: cafe6b3dd5b18de06b344ee445c3d8a0
+      size: 6477
     outs:
-    - path: data/split
+    - path: data/prepared
       hash: md5
-      md5: a78292abd8ae668ab057d7f8bfb18892.dir
-      size: 88336996
-      nfiles: 4
+      md5: 54eba0446447c95d2ee5e7f6f0c58eec.dir
+      size: 44168372
+      nfiles: 1
   train:
     cmd: python src/steps/train.py data/split/train.csv data/split/test.csv
     deps:
     - path: data/split/test.csv
       hash: md5
-      md5: fff019450dc23925d5d4d116b57f34df
-      size: 13247918
+      md5: bab6a33da6fdc870c452703dafecf4ae
+      size: 13240152
     - path: data/split/train.csv
       hash: md5
-      md5: 2f0843eea555dbe6ba51aaafadff10e1
-      size: 30920580
+      md5: d6d5c6d2f4dcb4fe343608095453bb04
+      size: 30902403
     - path: src/steps/train.py
       hash: md5
-      md5: 7879bdf6336c5c470a819191d5ce3f5c
-      size: 639
+      md5: ab342ba7697714e973b409dcc01f4839
+      size: 861
     outs:
     - path: data/models
       hash: md5
-      md5: dfc51010a6b7461750c8ebcf1dc96919.dir
+      md5: f5ead4ada6ca664fd6382e250958c8d6.dir
       size: 2473628
       nfiles: 1
   evaluate:
@@ -44,19 +44,37 @@ stages:
     deps:
     - path: data/models
       hash: md5
-      md5: dfc51010a6b7461750c8ebcf1dc96919.dir
+      md5: f5ead4ada6ca664fd6382e250958c8d6.dir
       size: 2473628
       nfiles: 1
     - path: data/split/test.csv
       hash: md5
-      md5: fff019450dc23925d5d4d116b57f34df
-      size: 13247918
+      md5: bab6a33da6fdc870c452703dafecf4ae
+      size: 13240152
     - path: src/steps/evaluate.py
       hash: md5
-      md5: e5a657dcf07a3ec8c248fb07c547f5ae
-      size: 1368
+      md5: c4e5dc085f0713b8f38c8d64ec94fec4
+      size: 1322
     outs:
     - path: data/eval/metrics.json
       hash: md5
       md5: 5072b12aea2a94b2b2322497386797e6
       size: 89
+  split:
+    cmd: python src/steps/split.py data/prepared/ data/split
+    deps:
+    - path: data/prepared
+      hash: md5
+      md5: 54eba0446447c95d2ee5e7f6f0c58eec.dir
+      size: 44168372
+      nfiles: 1
+    - path: src/steps/prepare.py
+      hash: md5
+      md5: cafe6b3dd5b18de06b344ee445c3d8a0
+      size: 6477
+    outs:
+    - path: data/split
+      hash: md5
+      md5: 32f82d8ca76d12b8d25e6e60b880797a.dir
+      size: 44142681
+      nfiles: 3
