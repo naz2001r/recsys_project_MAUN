@@ -36,8 +36,8 @@ stages:
     outs:
     - path: data/models
       hash: md5
-      md5: f5ead4ada6ca664fd6382e250958c8d6.dir
-      size: 2473628
+      md5: 5d14f061430364f6c3f01e65e1baf914.dir
+      size: 7115291
       nfiles: 1
   evaluate:
     cmd: python src/steps/evaluate.py data/split/test.csv

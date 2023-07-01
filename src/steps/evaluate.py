@@ -33,9 +33,8 @@ if len(sys.argv) == 3:
 else:
     list_of_files = glob.glob('.\\data\\models\\**\\*.pkl', recursive=True)
     model_dump = max(list_of_files, key=os.path.getctime)
-
 eval_model = BaseModel('base').load(model_dump)
-pred = eval_model.predict(eval_df[user_column].unique(), k=max(k_list))
+pred = eval_model.predict(eval_df[user_column].values, k=max(k_list))
 
 metrics_obj = ReccomenderMetrics()
 metrics = {}
