@@ -12,7 +12,7 @@ class CollaborativeFiltering(BaseModel):
                  bookid: str = "ISBN", 
                  userid: str = "User-ID", 
                  bookrank: str = "Book-Rating",
-                 filter_treshold: int = 100) -> None:
+                 filter_treshold: int = 200) -> None:
         """
         Initialize the CollabFilter model.
 
@@ -53,7 +53,7 @@ class CollaborativeFiltering(BaseModel):
         self.user_book_matrix = df.pivot_table(index=self.userid, columns=self.bookid, values=self.bookrank).fillna(0)
 
         print("Calculating similarities...")
-        self.similarities = self.user_book_matrix.progress_apply(lambda x: self.user_book_matrix.corrwith(x), axis=1)
+        self.similarities = self.user_book_matrix.progress_apply(lambda x: self.user_book_matrix.corrwith(x), axis=0)
         print("Training complete.")
 
     def predict(self, users: np.array, k: int = 3) -> np.array:
@@ -77,9 +77,9 @@ class CollaborativeFiltering(BaseModel):
                 user_books = user_books[user_books > 0].index.values
 
                 # get the similar users
-                similar_users = pd.Series()
+                similar_users = pd.Series(dtype='float64')
                 for book in user_books:
-                    similar_users = similar_users.append(self.similarities[book].dropna())
+                    similar_users = pd.concat([similar_users,self.similarities[book].dropna()])
 
                 similar_users = similar_users.groupby(similar_users.index).sum()
                 if user in similar_users:
@@ -92,11 +92,11 @@ class CollaborativeFiltering(BaseModel):
                 else:
                     # when we don't have any similar users, just recommend the top k books
                     print(f"No similar users found for user {user}. Recommending top {k} books.")
-                    predictions.append([self.rank.nlargest(k, self.bookrank)[self.bookid].to_list()])
+                    predictions.append(self.rank.nlargest(k, self.bookrank)[self.bookid].to_list())
             else:
                 # when we don't have any data on the user, just recommend the top k books
                 print(f"User {user} not found in training data. Recommending top {k} books.")
-                predictions.append([self.rank.nlargest(k, self.bookrank)[self.bookid].to_list()])
+                predictions.append(self.rank.nlargest(k, self.bookrank)[self.bookid].to_list())
 
         return np.array(predictions)
     
@@ -104,10 +104,10 @@ if __name__ == "__main__":
     # Run this code to test if script is not failing
     from sklearn.model_selection import train_test_split
 
-    df = pd.read_csv("data/prepared/BX-Book-Ratings-Prepared.csv")#[:10000]
+    df = pd.read_csv("data/prepared/preprocessed.csv")#[:10000]
     df_train, df_test = train_test_split(df, test_size=0.2, random_state=42)
 
     model = CollaborativeFiltering()
     model.train(df_train)
-    model.predict(df_test[model.userid].values, k=5)
+    print(model.predict(df_test[model.userid].values, k=5))
 
