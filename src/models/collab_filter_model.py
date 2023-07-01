@@ -1,6 +1,8 @@
 import numpy as np
 import pandas as pd
+from tqdm import tqdm
 from base_model import BaseModel
+tqdm.pandas()
 
 class CollaborativeFiltering(BaseModel):
     """Collaborative Filtering Algorithm"""
@@ -9,7 +11,8 @@ class CollaborativeFiltering(BaseModel):
     def __init__(self, 
                  bookid: str = "ISBN", 
                  userid: str = "User-ID", 
-                 bookrank: str = "Book-Rating") -> None:
+                 bookrank: str = "Book-Rating",
+                 filter_treshold: int = 100) -> None:
         """
         Initialize the CollabFilter model.
 
@@ -17,12 +20,14 @@ class CollaborativeFiltering(BaseModel):
             bookid (str, optional):   The name of the column representing the book ID. Defaults to "ISBN".
             userid (str, optional):   The name of the column representing the user ID. Defaults to "User-ID".
             bookrank (str, optional): The name of the column representing the book rating. Defaults to "Book-Rating".
+            filter_treshold (int, optional): The minimum number of ratings a book must have to be considered. Defaults to 100.
         """
         super().__init__(self.MODEL_NAME)
 
         self.bookid = bookid
         self.userid = userid
         self.bookrank = bookrank
+        self.filter_treshold = filter_treshold
         self.rank = None
         self.user_book_matrix = None
         self.similarities = None
@@ -34,6 +39,11 @@ class CollaborativeFiltering(BaseModel):
         Args:
             df (pd.DataFrame): The DataFrame containing the book ratings data.
         """
+
+        # Delete books with less than filter_treshold ratings
+        df = df.groupby(self.bookid).filter(lambda x: len(x) >= self.filter_treshold)
+        print(len(df))
+
         print("Training model...")
         self.rank = df.groupby([self.bookid]).agg({
             self.bookrank: "mean"
@@ -43,7 +53,7 @@ class CollaborativeFiltering(BaseModel):
         self.user_book_matrix = df.pivot_table(index=self.userid, columns=self.bookid, values=self.bookrank).fillna(0)
 
         print("Calculating similarities...")
-        self.similarities = self.user_book_matrix.corr(method='pearson')
+        self.similarities = self.user_book_matrix.progress_apply(lambda x: self.user_book_matrix.corrwith(x), axis=1)
         print("Training complete.")
 
     def predict(self, users: np.array, k: int = 3) -> np.array:
@@ -94,7 +104,7 @@ if __name__ == "__main__":
     # Run this code to test if script is not failing
     from sklearn.model_selection import train_test_split
 
-    df = pd.read_csv("data/prepared/BX-Book-Ratings-Prepared.csv")[:10000]
+    df = pd.read_csv("data/prepared/BX-Book-Ratings-Prepared.csv")#[:10000]
     df_train, df_test = train_test_split(df, test_size=0.2, random_state=42)
 
     model = CollaborativeFiltering()
