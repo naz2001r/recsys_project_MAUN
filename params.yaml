@@ -10,7 +10,7 @@ split:
   stratify_column: ISBN
 
 train:
-  model: CollaborativeFiltering
+  model: baseline
   method: mean
   filter_treshold: 10
 
