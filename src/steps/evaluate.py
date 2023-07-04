@@ -34,11 +34,11 @@ else:
     list_of_files = glob.glob('.\\data\\models\\**\\*.pkl', recursive=True)
     model_dump = max(list_of_files, key=os.path.getctime)
 eval_model = BaseModel('base').load(model_dump)
-pred = eval_model.predict(eval_df[user_column].values, k=max(k_list))
 
 metrics_obj = ReccomenderMetrics()
 metrics = {}
 for k in k_list:
+    pred = eval_model.predict(eval_df[user_column].values, k=k)
     metrics[f'map@{k}'] = metrics_obj.mapk([eval_df[eval_df[user_column] == user_id][book_column].unique().tolist() for user_id in eval_df[user_column].unique()], pred, k)
 
 os.makedirs('data\\eval', exist_ok=True)

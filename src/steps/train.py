@@ -17,6 +17,7 @@ test_file = sys.argv[2]
 params = yaml.safe_load(open('params.yaml'))['train']
 model = params['model']
 method = params['method']
+filter_treshold = params['filter_treshold']
 
 train_df = pd.read_csv(train_file)
 test_df = pd.read_csv(test_file)
@@ -27,7 +28,7 @@ if model == 'baseline':
 
 elif model == 'CollaborativeFiltering':
     from collab_filter_model import CollaborativeFiltering
-    train_model = CollaborativeFiltering()
+    train_model = CollaborativeFiltering(filter_treshold=filter_treshold)
 
 else:
     pass
