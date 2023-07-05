@@ -2,6 +2,7 @@ import yaml
 import pandas as pd
 import sys
 sys.path.append('./src/models/')
+import dvc.api
 
 if len(sys.argv) != 3:
     sys.stderr.write('Arguments error. Usage:\n')
@@ -13,9 +14,10 @@ if len(sys.argv) != 3:
 train_file = sys.argv[1]
 test_file = sys.argv[2]
 
-params = yaml.safe_load(open('params.yaml'))['train']
-model = params['model']
-method = params['method']
+params = dvc.api.params_show()
+
+model = params['train']['model']
+method = params['train']['method']
 filter_treshold = params['filter_treshold']
 
 train_df = pd.read_csv(train_file)

@@ -1,3 +1,7 @@
+filter_treshold: 50
+user_column: User-ID
+book_column: ISBN
+
 prepare:
   users_file: BX-Users.csv
   book_file: BX-Books.csv
@@ -10,13 +14,10 @@ split:
   stratify_column: ISBN
 
 train:
-  model: CollaborativeFiltering
+  model: baseline
   method: mean
-  filter_treshold: 50
 
 evaluate:
-  user_column: User-ID
-  book_column: ISBN
   k_list:
   - 5
   - 10

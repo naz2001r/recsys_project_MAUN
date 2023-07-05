@@ -10,71 +10,71 @@ stages:
       nfiles: 3
     - path: src/steps/prepare.py
       hash: md5
-      md5: 8d5814323b2806d0c0320d93b2a546db
-      size: 6359
+      md5: bcff259273b8b6a9e2a7e3f4cad9de0e
+      size: 6501
     outs:
     - path: data/prepared
       hash: md5
-      md5: c5a7104705a11b09d5733c80afe99f22.dir
-      size: 43784528
+      md5: 54eba0446447c95d2ee5e7f6f0c58eec.dir
+      size: 44168372
       nfiles: 1
   train:
     cmd: python src/steps/train.py data/split/train.csv data/split/test.csv
     deps:
     - path: data/split/test.csv
       hash: md5
-      md5: 02d78f8c8f03ba91422eae3fb8d52dd1
-      size: 13124998
+      md5: b4dfd8b773bc7e09d7be272008430fe5
+      size: 1719180
     - path: data/split/train.csv
       hash: md5
-      md5: fd36489e4f76a9b39bf67e8ea24ac74b
-      size: 30633712
+      md5: f8e0298409f59e83ec3bdb7b7e11be86
+      size: 4009844
     - path: src/steps/train.py
       hash: md5
-      md5: 6cb657632424eec0c74c5134579da152
-      size: 1061
+      md5: a220ec21e1cd9b84738b11365a282087
+      size: 1115
     outs:
     - path: data/models
       hash: md5
-      md5: 2b1f55724209205ca4923299d94197bc.dir
-      size: 1635037527
+      md5: 3a9262818845534053e4632ce486a529.dir
+      size: 12008
       nfiles: 1
   evaluate:
     cmd: python src/steps/evaluate.py data/split/test.csv
     deps:
     - path: data/models
       hash: md5
-      md5: 2b1f55724209205ca4923299d94197bc.dir
-      size: 1635037527
+      md5: 3a9262818845534053e4632ce486a529.dir
+      size: 12008
       nfiles: 1
     - path: data/split/test.csv
       hash: md5
-      md5: bab6a33da6fdc870c452703dafecf4ae
-      size: 13240152
+      md5: b4dfd8b773bc7e09d7be272008430fe5
+      size: 1719180
     - path: src/steps/evaluate.py
       hash: md5
-      md5: d02fdc52d08d79b4a9b18092e3d5ee0c
-      size: 1423
+      md5: 09b158f19d5ca5a1dea97cfa13136dff
+      size: 1425
     outs:
     - path: data/eval/metrics.json
       hash: md5
-      md5: 35c07693025942bdb1bc443a32cd73d6
-      size: 44
+      md5: 16066e43f081b38f3abc0bc1eb8b9157
+      size: 95
   split:
     cmd: python src/steps/split.py data/prepared/ data/split
     deps:
     - path: data/prepared
       hash: md5
-      md5: c5a7104705a11b09d5733c80afe99f22.dir
-      size: 43784528
+      md5: 54eba0446447c95d2ee5e7f6f0c58eec.dir
+      size: 44168372
       nfiles: 1
     - path: src/steps/prepare.py
       hash: md5
-      md5: 8d5814323b2806d0c0320d93b2a546db
-      size: 6359
+      md5: bcff259273b8b6a9e2a7e3f4cad9de0e
+      size: 6501
     outs:
     - path: data/split
       hash: md5
-      md5: 310bbe7ef5bbd35cf4c4e029d30e07c8.dir
-      size: 43758835
+      md5: 0eb6372ca3db6d364bd2a0715bb83b68.dir
+      size: 5729150
       nfiles: 3

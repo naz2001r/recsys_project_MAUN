@@ -14,7 +14,7 @@ class CollaborativeFiltering(BaseModel):
                  bookid: str = "ISBN", 
                  userid: str = "User-ID", 
                  bookrank: str = "Book-Rating",
-                 filter_treshold: int = 100) -> None:
+                 filter_treshold: int = 10) -> None:
         """
         Initialize the CollabFilter model.
 
