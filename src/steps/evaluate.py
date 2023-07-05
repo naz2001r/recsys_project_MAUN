@@ -11,6 +11,7 @@ sys.path.append('./src/metrics/')
 
 from base_model import BaseModel
 from metrics import ReccomenderMetrics
+import dvc.api
 
 if len(sys.argv) != 2:
     sys.stderr.write('Arguments error. Usage:\n')
@@ -19,8 +20,8 @@ if len(sys.argv) != 2:
     )
     sys.exit(1)
 
-params = yaml.safe_load(open('params.yaml'))['evaluate']
-k_list = params['k_list']
+params = dvc.api.params_show()
+k_list = params['evaluate']['k_list']
 user_column = params['user_column']
 book_column = params['book_column']
 

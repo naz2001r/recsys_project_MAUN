@@ -6,6 +6,7 @@ import numpy as np
 pd.set_option('mode.chained_assignment', None)
 import warnings
 warnings.filterwarnings("ignore")
+import dvc.api
 
 if len(sys.argv) != 3:
     sys.stderr.write('Arguments error. Usage:\n')
@@ -16,10 +17,10 @@ if len(sys.argv) != 3:
 
 output_dir = sys.argv[2]
 
-params = yaml.safe_load(open('params.yaml'))['prepare']
-rate_file = params['rate_file']
-users_file = params['users_file']
-book_file = params['book_file']
+params = dvc.api.params_show()
+rate_file = params['prepare']['rate_file']
+users_file = params['prepare']['users_file']
+book_file = params['prepare']['book_file']
 
 os.makedirs(output_dir, exist_ok=True)
 
