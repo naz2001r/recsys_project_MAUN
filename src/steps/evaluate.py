@@ -6,8 +6,9 @@ import numpy as np
 import json
 
 import sys
-sys.path.append('.\\src\\models\\')
-sys.path.append('.\\src\\metrics\\')
+sys.path.append('./src/models/')
+sys.path.append('./src/metrics/')
+
 from base_model import BaseModel
 from metrics import ReccomenderMetrics
 
@@ -31,16 +32,18 @@ model_dump = ''
 if len(sys.argv) == 3:
     model_dump = sys.argv[2]
 else:
-    list_of_files = glob.glob('.\\data\\models\\**\\*.pkl', recursive=True)
+    list_of_files = glob.glob('./data/models/**/*.pkl', recursive=True)
     model_dump = max(list_of_files, key=os.path.getctime)
+    print(model_dump)
 eval_model = BaseModel('base').load(model_dump)
 
 metrics_obj = ReccomenderMetrics()
 metrics = {}
 for k in k_list:
-    pred = eval_model.predict(eval_df[user_column].values, k=k)
-    metrics[f'map@{k}'] = metrics_obj.mapk([eval_df[eval_df[user_column] == user_id][book_column].unique().tolist() for user_id in eval_df[user_column].unique()], pred, k)
+    pred = eval_model.predict(eval_df[user_column].unique(), k=k)
+    true = [eval_df[eval_df[user_column] == user_id].sort_values(by="Book-Rating", ascending=False)[book_column].tolist() for user_id in eval_df[user_column].unique()]
+    metrics[f'map@{k}'] = metrics_obj.mapk(true, pred, k)
 
-os.makedirs('data\\eval', exist_ok=True)
-with open(os.path.join('data\\eval', "metrics.json"), "w") as mf:
+os.makedirs('data/eval', exist_ok=True)
+with open(os.path.join('data/eval', "metrics.json"), "w") as mf:
     json.dump(metrics, mf)

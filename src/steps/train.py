@@ -1,8 +1,7 @@
-import sys
 import yaml
 import pandas as pd
 import sys
-sys.path.append('.\\src\\models\\')
+sys.path.append('./src/models/')
 
 if len(sys.argv) != 3:
     sys.stderr.write('Arguments error. Usage:\n')
@@ -38,5 +37,6 @@ else:
     pass
 
 train_model.train(train_df)
+print(1)
 
 train_model.dump(f'{model}_{method}' if method else model)
