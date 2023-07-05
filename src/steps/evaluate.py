@@ -40,8 +40,9 @@ eval_model = BaseModel('base').load(model_dump)
 metrics_obj = ReccomenderMetrics()
 metrics = {}
 for k in k_list:
-    pred = eval_model.predict(eval_df[user_column].unique(), k=k)
-    true = [eval_df[eval_df[user_column] == user_id].sort_values(by="Book-Rating", ascending=False)[book_column].tolist() for user_id in eval_df[user_column].unique()]
+    users = eval_df[user_column].unique()
+    pred = eval_model.predict(users, k=k)
+    true = [eval_df[eval_df[user_column] == user_id].sort_values(by="Book-Rating", ascending=False)[book_column].tolist() for user_id in users]
     metrics[f'map@{k}'] = metrics_obj.mapk(true, pred, k)
 
 os.makedirs('data/eval', exist_ok=True)
