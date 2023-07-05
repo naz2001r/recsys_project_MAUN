@@ -1,10 +1,13 @@
 import numpy as np
 from numpy.linalg import svd, norm
 import pandas as pd
+from tqdm import tqdm
 from base_model import BaseModel
+from concurrent.futures.thread import ThreadPoolExecutor
+import concurrent
 
 class MatrixFactorization(BaseModel):
-    """Collaborative Filtering Algorithm"""
+    """Matrix Factorization Algorithm"""
     MODEL_NAME = 'MatrixFactorization'
 
     def __init__(self, 
@@ -27,6 +30,7 @@ class MatrixFactorization(BaseModel):
         self.userid = userid
         self.bookrank = bookrank
         self.filter_treshold = filter_treshold
+        self.rank = None
         self.popular_books = None
         self.user_book_matrix = None
         self.vh = None
@@ -41,11 +45,20 @@ class MatrixFactorization(BaseModel):
         """
 
         # Delete books with less than filter_treshold ratings
+        print("Training model...")
         self.popular_books = df[df['Total_No_Of_Users_Rated'] > self.filter_treshold].reset_index(drop = True)
+
+        self.rank = df.groupby([self.bookid]).agg({
+            self.bookrank: "mean"
+        }).reset_index()
+
+        print("Creating user-book matrix...")
         self.user_book_matrix = self.popular_books.pivot_table(index=self.userid, columns=self.bookid, values=self.bookrank, aggfunc = len).fillna(0)
         # SVD
+        print("Calculating SVD...")
         matrix = self.user_book_matrix.values
         _, _, self.vh = svd(matrix, full_matrices=False)
+        print("Training complete!")
 
     
     # Function to calculate cosine similarity
@@ -54,9 +67,22 @@ class MatrixFactorization(BaseModel):
         return np.dot(A,B)/(norm(A)*norm(B))
     
     # When user type the user id, with this function we will get the id of this user favourite book
-    def _index_of_fav_book(self, user_id):
-    
+    def _index_of_fav_book(self, user_id: int) -> int:
+        """"
+        Get the index of the user's favourite book.
+
+        Args:
+            user_id (int): The user ID.
+        
+        Returns:
+            int: The index of the user's favourite book.
+        """
+
         name_book = self.popular_books[self.popular_books[self.userid] == user_id]
+
+        # If the user has not rated any book, return -1
+        if name_book.empty:
+            return -1
         name_book = name_book[name_book[self.bookrank] == name_book[self.bookrank].max()]
         name_book = name_book[name_book['Total_No_Of_Users_Rated'] == name_book['Total_No_Of_Users_Rated'].max()]
         name_book=name_book.iloc[0][3]
@@ -64,7 +90,18 @@ class MatrixFactorization(BaseModel):
         return np.where(pd.DataFrame(self.user_book_matrix.columns)[self.bookid] == name_book)[0][0]
 
     # Recommendations
-    def _recommend(self, user_book, k):
+    def _recommend(self, user_book: int, k: int) -> list:
+        """"
+        Generate recommendations for the given user.
+        
+        Args:
+            user_book (int): The index of the user's favourite book.
+            k (int): The number of top recommendations to return.
+        
+        Returns:
+            list: A list of recommended book ISBN for the given user.
+        """
+
         # Caclucate cosine similarity between vectors with books
         sim = []
         for col in range(self.vh.shape[1]):
@@ -80,6 +117,24 @@ class MatrixFactorization(BaseModel):
         
         return recom_book
     
+    def _process_user(self, user: int, k: int) -> list:
+        """"
+        Process a single user and generate recommendations.
+
+        Args:
+            user (int): The user ID.
+            k (int): The number of top recommendations to return.
+        
+        Returns:
+            list: A list of recommended book ISBN for the given user.
+        """
+
+        user_book = self._index_of_fav_book(user)
+        if user_book == -1:
+            #print(f"User {user} has not rated any book in the dataset. Returning top {k} popular books.")
+            return self.rank.nlargest(k, self.bookrank)[self.bookid].tolist()
+        return self._recommend(user_book, k)
+    
     def predict(self, users: np.array, k: int = 3) -> np.array:
         """
         Generate predictions for the given users.
@@ -93,9 +148,19 @@ class MatrixFactorization(BaseModel):
         """
             
         predictions = []
-        for user in users:
-            user_book = self.index_of_fav_book(self.popular_books, self.user_book_matrix, user)
-            predictions.append(self.recommend(self.vh, user_book, self.user_book_matrix, k))
+        with ThreadPoolExecutor() as executor:
+            futures = []
+            print("Loading executor")
+            for user in tqdm(users):
+                future = executor.submit(self._process_user, user, k)
+                futures.append(future)
+            
+            print("Collecting results from executor")
+            with tqdm(total=len(users)) as pbar:
+                for future in concurrent.futures.as_completed(futures):
+                    result = future.result()
+                    predictions.append(result)
+                    pbar.update(1)
         return np.array(predictions)
 
     
@@ -108,4 +173,4 @@ if __name__ == "__main__":
 
     model = MatrixFactorization()
     model.train(df_train)
-    print(model.predict(df_test[model.userid].values, k=5))
+    print(model.predict(df_test[model.userid].unique(), k=5))

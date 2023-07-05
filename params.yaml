@@ -10,9 +10,9 @@ split:
   stratify_column: ISBN
 
 train:
-  model: baseline
+  model: MatrixFactorization
   method: mean
-  filter_treshold: 10
+  filter_treshold: 20
 
 evaluate:
   user_column: User-ID

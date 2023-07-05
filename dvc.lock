@@ -10,13 +10,13 @@ stages:
       nfiles: 3
     - path: src/steps/prepare.py
       hash: md5
-      md5: cafe6b3dd5b18de06b344ee445c3d8a0
-      size: 6477
+      md5: 8d5814323b2806d0c0320d93b2a546db
+      size: 6359
     outs:
     - path: data/prepared
       hash: md5
-      md5: 54eba0446447c95d2ee5e7f6f0c58eec.dir
-      size: 44168372
+      md5: c5a7104705a11b09d5733c80afe99f22.dir
+      size: 43784528
       nfiles: 1
   train:
     cmd: python src/steps/train.py data/split/train.csv data/split/test.csv
@@ -65,16 +65,16 @@ stages:
     deps:
     - path: data/prepared
       hash: md5
-      md5: 54eba0446447c95d2ee5e7f6f0c58eec.dir
-      size: 44168372
+      md5: c5a7104705a11b09d5733c80afe99f22.dir
+      size: 43784528
       nfiles: 1
     - path: src/steps/prepare.py
       hash: md5
-      md5: cafe6b3dd5b18de06b344ee445c3d8a0
-      size: 6477
+      md5: 8d5814323b2806d0c0320d93b2a546db
+      size: 6359
     outs:
     - path: data/split
       hash: md5
-      md5: 32f82d8ca76d12b8d25e6e60b880797a.dir
-      size: 44142681
+      md5: 310bbe7ef5bbd35cf4c4e029d30e07c8.dir
+      size: 43758835
       nfiles: 3

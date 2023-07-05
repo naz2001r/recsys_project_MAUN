@@ -30,6 +30,10 @@ elif model == 'CollaborativeFiltering':
     from collab_filter_model import CollaborativeFiltering
     train_model = CollaborativeFiltering(filter_treshold=filter_treshold)
 
+elif model == 'MatrixFactorization':
+    from matrix_factorization import MatrixFactorization
+    train_model = MatrixFactorization(filter_treshold=filter_treshold)
+
 else:
     pass
 
