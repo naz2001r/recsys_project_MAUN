@@ -1,4 +1,4 @@
-filter_treshold: 50
+filter_treshold: 10
 user_column: User-ID
 book_column: ISBN
 
