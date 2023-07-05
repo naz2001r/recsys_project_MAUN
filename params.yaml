@@ -12,7 +12,7 @@ split:
 train:
   model: CollaborativeFiltering
   method: mean
-  filter_treshold: 10
+  filter_treshold: 50
 
 evaluate:
   user_column: User-ID

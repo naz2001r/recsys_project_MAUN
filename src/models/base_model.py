@@ -5,7 +5,7 @@ import time
 
 class BaseModel:
     """Base class for all models."""
-    BASE_PATH: str = 'data\\models'
+    BASE_PATH: str = 'data/models'
 
     def __init__(self, method_name: str):
         """"

@@ -163,4 +163,4 @@ if __name__ == "__main__":
 
     model = CollaborativeFiltering()
     model.train(df_train)
-    print(model.predict(df_test[model.userid].values, k=5))
+    print(model.predict(df_test[model.userid].unique(), k=5))

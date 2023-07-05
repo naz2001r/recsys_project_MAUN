@@ -1,8 +1,7 @@
-import sys
 import yaml
 import pandas as pd
 import sys
-sys.path.append('.\\src\\models\\')
+sys.path.append('./src/models/')
 
 if len(sys.argv) != 3:
     sys.stderr.write('Arguments error. Usage:\n')
@@ -30,9 +29,14 @@ elif model == 'CollaborativeFiltering':
     from collab_filter_model import CollaborativeFiltering
     train_model = CollaborativeFiltering(filter_treshold=filter_treshold)
 
+elif model == 'MatrixFactorization':
+    from matrix_factorization import MatrixFactorization
+    train_model = MatrixFactorization(filter_treshold=filter_treshold)
+
 else:
     pass
 
 train_model.train(train_df)
+print(1)
 
 train_model.dump(f'{model}_{method}' if method else model)
