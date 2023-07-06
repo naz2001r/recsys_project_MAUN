@@ -14,7 +14,7 @@ split:
   stratify_column: ISBN
 
 train:
-  model: baseline
+  model: CollaborativeFiltering
   method: mean
 
 evaluate:
