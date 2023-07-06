@@ -48,7 +48,7 @@ for k in k_list:
     metrics[f'precision@{k}'] = np.mean([metrics_obj.precisionk(true[i], pred[i], k) for i in range(len(users))])
     metrics[f'recall@{k}'] = np.mean([metrics_obj.recallk(true[i], pred[i], k) for i in range(len(users))])
     metrics[f'ndcg@{k}'] = np.mean([metrics_obj.ndcgk(true[i], pred[i], k) for i in range(len(users))])
-metrics[f'coverage'] = metrics_obj.coveragek(true, pred, k)
+metrics[f'coverage'] = metrics_obj.coverage(true, pred)
 
 os.makedirs('data/eval', exist_ok=True)
 with open(os.path.join('data/eval', "metrics.json"), "w") as mf:
