@@ -15,14 +15,32 @@ stages:
     outs:
     - data/split
 
-  train:
-    cmd: python src/steps/train.py data/split/train.csv data/split/test.csv
+  train_baseline_model:
+    cmd: python src/steps/train_baseline_model.py data/split/train.csv data/split/test.csv
     deps:
     - data/split/train.csv
     - data/split/test.csv
-    - src/steps/train.py
+    - src/steps/train_baseline_model.py
     outs:
-    - data/models
+    - data/models/baseline
+    
+  train_collaborative_filtering:
+    cmd: python src/steps/train_collaborative_filtering.py data/split/train.csv data/split/test.csv
+    deps:
+    - data/split/train.csv
+    - data/split/test.csv
+    - src/steps/train_collaborative_filtering.py
+    outs:
+    - data/models/CollaborativeFiltering
+
+  train_factorization:
+    cmd: python src/steps/train_factorization.py data/split/train.csv data/split/test.csv
+    deps:
+    - data/split/train.csv
+    - data/split/test.csv
+    - src/steps/train_factorization.py
+    outs:
+    - data/models/MatrixFactorization
 
   evaluate:
     cmd: python src/steps/evaluate.py data/split/test.csv 

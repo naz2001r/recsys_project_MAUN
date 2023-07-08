@@ -1,4 +1,4 @@
-filter_treshold: 10
+filter_treshold: 100
 user_column: User-ID
 book_column: ISBN
 
@@ -14,7 +14,6 @@ split:
   stratify_column: ISBN
 
 train:
-  model: baseline
   method: mean
 
 evaluate:

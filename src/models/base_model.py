@@ -5,6 +5,7 @@ import time
 
 class BaseModel:
     """Base class for all models."""
+    MODEL_NAME: str = 'base'
     BASE_PATH: str = 'data/models'
 
     def __init__(self, method_name: str):
@@ -15,6 +16,10 @@ class BaseModel:
             method_name (str): The name of the method used for the model.
         """
         self._method_name = method_name
+
+    
+    def name(self):
+        return self.MODEL_NAME
 
     def predict(self) -> None:
         """Generate predictions for the given users."""

@@ -19,7 +19,7 @@ class Baseline(BaseModel):
             ValueError: If the method is not one of the available methods.
         """
 
-        super().__init__(f'{self.MODEL_NAME}_{method}')
+        super().__init__(f'{self.MODEL_NAME}')
 
         if method in self.METHODS:
             self.method = method
