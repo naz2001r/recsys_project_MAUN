@@ -1,10 +1,14 @@
-import sys
 import os
+import sys
 import yaml
+import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
-import numpy as np
+
+from constants import mapping_dict
+
 pd.set_option('mode.chained_assignment', None)
+
 import warnings
 warnings.filterwarnings("ignore")
 
@@ -29,10 +33,12 @@ book_file = params['book_file']
 os.makedirs(output_dir, exist_ok=True)
 
 input_folder = sys.argv[1]
+print('Read files')
 books = pd.read_csv(os.path.join(input_folder, book_file), sep=';', encoding='ISO-8859-1', on_bad_lines='skip', low_memory=False)
 users = pd.read_csv(os.path.join(input_folder, users_file), sep=';', encoding='ISO-8859-1', on_bad_lines='skip')
 ratings = pd.read_csv(os.path.join(input_folder, rate_file), sep=';', encoding='ISO-8859-1', on_bad_lines='skip')
 
+print('Start preprocessing books dataset')
 # First work with books dataset
 
 # Delete unseful columns Image-URL-S, Image-URL-M and Image-URL-L.
@@ -71,6 +77,9 @@ books.Publisher.fillna('other',inplace=True)
 # exploring 'Book-Author' column and filling Nan of Book-Author with others
 books['Book-Author'].fillna('other',inplace=True)
 
+print('End preprocessing books dataset\n')
+
+print('Start preprocessing ratings dataset')
 # Work with ratings dataset
 
 #  Ratings dataset should have books only which exist in our books dataset and should have ratings from users which exist in users dataset. 
@@ -92,19 +101,30 @@ ratings_explicit['Avg_Rating'] = ratings_explicit.groupby('ISBN')['Book-Rating']
 # Create column Total_No_Of_Users_Rated with total number of user who rate the book
 ratings_explicit['Total_No_Of_Users_Rated'] = ratings_explicit.groupby('ISBN')['Book-Rating'].transform('count')
 
+print('End preprocessing ratings dataset\n')
+
 # Work with users dataset
+print('Start preprocessing users dataset')
 
 # In our data we can see that there are many users with age more than 100, and what is most unexpected that there are those whose age are 200. This is outliers so we should drop it. 
 # Also, we should drop the users with age lower than 5, because children can start to read in this age.
 users.loc[(users.Age > 100) | (users.Age < 5), 'Age'] = np.nan
 
 # In column location we have 57339 unique Value and it's really hard to understand. So lets create column Country.
-for i in users:
-    users['Country']=users.Location.str.extract(r'\,+\s?(\w*\s?\w*)\"*$')   
+
+# Split 'Location' column into three separate columns
+users[['City/Town', 'State/Province/Region', 'Country']] = users['Location'].str.split(', ', expand=True, n=2)
 
 #drop location column
 users.drop('Location',axis=1,inplace=True)
 users['Country'] = users['Country'].astype('str')
+
+# Replase unknown countries 
+users['Country'].replace(mapping_dict, inplace=True)
+
+# If it is region/state, country - take only country
+users['Country'] = users['Country'].str.split(',').str[-1].str.strip()
+
 
 # Replase unknown countries 
 users['Country'].replace(['','01776','02458','19104','23232','30064','85021','87510','alachua','america','austria','autralia','cananda','geermany','italia','united kindgonm','united sates','united staes','united state','united states','us'],
@@ -116,11 +136,15 @@ users['Age'] = users['Age'].fillna(users.groupby('Country')['Age'].transform('me
 # Still we have 276 Nan values let's fill them with mean
 users['Age'].fillna(users.Age.mean(),inplace=True)
 
+print('End preprocessing users dataset\n')
+
 # Merge all data and save to csv
 dataset = users.copy()
 dataset = pd.merge(dataset,ratings_explicit,on='User-ID')
 dataset = pd.merge(dataset,books,on='ISBN')
 dataset.to_csv(os.path.join(output_dir, 'preprocessed.csv'),index=False)
+
+print('Datasets were merged and saved')
 
 train, test = train_test_split(
     dataset.index,
@@ -137,3 +161,5 @@ val = dataset[(~dataset.index.isin(train.index)) & (~dataset.index.isin(test.ind
 train.to_csv(os.path.join(output_dir, 'train.csv'), index=False)
 test.to_csv(os.path.join(output_dir, 'test.csv'), index=False)
 val.to_csv(os.path.join(output_dir, 'val.csv'), index=False)
+
+print('Dataset was splitted and saved')

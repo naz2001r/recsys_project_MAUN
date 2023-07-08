@@ -10,13 +10,13 @@ stages:
       nfiles: 3
     - path: src/steps/prepare.py
       hash: md5
-      md5: 8bcd4599bea280a3d0ad3537fda303cd
-      size: 7142
+      md5: 2c82c2472d85862df3dc1c9281ba5459
+      size: 7684
     outs:
     - path: data/split
       hash: md5
-      md5: a78292abd8ae668ab057d7f8bfb18892.dir
-      size: 88336996
+      md5: c273c1349696fbf57a56d72afdf0854f.dir
+      size: 102097784
       nfiles: 4
   train:
     cmd: python src/steps/train.py data/split/train.csv data/split/test.csv
