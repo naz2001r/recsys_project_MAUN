@@ -35,10 +35,18 @@ elif model == 'MatrixFactorization':
     from matrix_factorization import MatrixFactorization
     train_model = MatrixFactorization(filter_treshold=filter_treshold)
 
+elif model == 'STransformer':
+    from stransformer_content_based import STransformContentBase
+    train_model = STransformContentBase(transformer_model = params['train']['transformer_model'])
+
+elif model == 'HybridNN_Recommender':
+    from hybrid_nn_model import HybridNN_Recommender
+    train_model = HybridNN_Recommender(transformer_model = params['train']['transformer_model'], 
+                                       num_epochs = params['train']['num_epochs'])
+
 else:
-    pass
+    raise Exception(f'Model {model} not found.')
 
 train_model.train(train_df)
-print(1)
 
 train_model.dump(f'{model}_{method}' if method else model)

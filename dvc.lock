@@ -23,34 +23,34 @@ stages:
     deps:
     - path: data/split/test.csv
       hash: md5
-      md5: 44de7985f7288e21e01f623224f027ca
-      size: 4725251
+      md5: 57720f02a3b205618ec3022f30ab78ab
+      size: 801084
     - path: data/split/train.csv
       hash: md5
-      md5: 92bc7933f451a4820bd0c2e73ecfbbdd
-      size: 11030230
+      md5: 5985e0a23669913f60a4510d4b3e6ae2
+      size: 1868191
     - path: src/steps/train.py
       hash: md5
-      md5: 79ab831c73ba7f5d2ccd0c37804641f0
-      size: 1072
+      md5: 53c62a5d4e63ee6eddeb0ffefaaad2f8
+      size: 1570
     outs:
     - path: data/models
       hash: md5
-      md5: e2da4bfca84bc2ac2f6edd82065fbd93.dir
-      size: 115265
+      md5: 786a8de8ebbc063ed6855b492d410e13.dir
+      size: 110520530
       nfiles: 1
   evaluate:
     cmd: python src/steps/evaluate.py data/split/test.csv
     deps:
     - path: data/models
       hash: md5
-      md5: e2da4bfca84bc2ac2f6edd82065fbd93.dir
-      size: 115265
+      md5: 786a8de8ebbc063ed6855b492d410e13.dir
+      size: 110520530
       nfiles: 1
     - path: data/split/test.csv
       hash: md5
-      md5: 44de7985f7288e21e01f623224f027ca
-      size: 4725251
+      md5: 57720f02a3b205618ec3022f30ab78ab
+      size: 801084
     - path: src/steps/evaluate.py
       hash: md5
       md5: a87f99ba5c9be2d498c7d9525d6d232e
@@ -58,8 +58,8 @@ stages:
     outs:
     - path: data/eval/metrics.json
       hash: md5
-      md5: d616929169abaa1601f104451aaf5d41
-      size: 453
+      md5: 9fde5178c97ec3394c402d87a369a881
+      size: 444
   split:
     cmd: python src/steps/split.py data/prepared/ data/split
     deps:
@@ -75,6 +75,6 @@ stages:
     outs:
     - path: data/split
       hash: md5
-      md5: f8982c00c18b76019134faeaa050fbfb.dir
-      size: 15755606
+      md5: 4b68d4085e43115793bab40533362176.dir
+      size: 2669400
       nfiles: 3

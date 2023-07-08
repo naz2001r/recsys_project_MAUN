@@ -1,6 +1,7 @@
-filter_treshold: 10
+filter_treshold: 100
 user_column: User-ID
 book_column: ISBN
+rating_column: Book-Rating
 
 prepare:
   users_file: BX-Users.csv
@@ -14,8 +15,10 @@ split:
   stratify_column: ISBN
 
 train:
-  model: baseline
+  model: HybridNN_Recommender
   method: mean
+  transformer_model: all-MiniLM-L6-v2
+  num_epochs: 1
 
 evaluate:
   k_list:
