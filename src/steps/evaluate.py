@@ -13,10 +13,10 @@ from base_model import BaseModel
 from metrics import ReccomenderMetrics
 import dvc.api
 
-if len(sys.argv) != 2:
+if len(sys.argv) != 3:
     sys.stderr.write('Arguments error. Usage:\n')
     sys.stderr.write(
-        '\tpython3 evaluate.py eval_file \n'
+        '\tpython3 evaluate.py eval_file full_file\n'
     )
     sys.exit(1)
 
@@ -28,10 +28,13 @@ book_column = params['book_column']
 eval_file = sys.argv[1]
 eval_df = pd.read_csv(eval_file)
 
+file_full = sys.argv[2]
+df_full = pd.read_csv(file_full)
+
 model_dump = ''
 
-if len(sys.argv) == 3:
-    model_dump = sys.argv[2]
+if len(sys.argv) == 4:
+    model_dump = sys.argv[3]
 else:
     list_of_files = glob.glob('./data/models/**/*.pkl', recursive=True)
     print('Next models will be evaluated:')
@@ -52,7 +55,8 @@ for model_dump in list_of_files:
         metrics[f'{eval_model.name()}'][f'precision@{k}'] = np.mean([metrics_obj.precisionk(true[i], pred[i], k) for i in range(len(users))])
         metrics[f'{eval_model.name()}'][f'recall@{k}'] = np.mean([metrics_obj.recallk(true[i], pred[i], k) for i in range(len(users))])
         metrics[f'{eval_model.name()}'][f'ndcg@{k}'] = np.mean([metrics_obj.ndcgk(true[i], pred[i], k) for i in range(len(users))])
-    metrics[f'{eval_model.name()}'][f'coverage'] = metrics_obj.coverage(true, pred)
+    
+    metrics[f'{eval_model.name()}'][f'coverage'] = metrics_obj.coverage(true, df_full["ISBN"].unique())
 
 os.makedirs('data/eval', exist_ok=True)
 with open(os.path.join('data/eval', "metrics.json"), "w") as mf:
