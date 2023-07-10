@@ -1,6 +1,7 @@
 import dvc.api
 import sys
 import pandas as pd
+import os
 sys.path.append('./src/models/')
 
 
@@ -13,20 +14,21 @@ class TrainStepABC():
         self._filter_treshold = params['filter_treshold']
         self._transformer_model = params['train']['transformer_model']
         self._num_epochs = params['train']['num_epochs']
+        self._train_file = params['train']['train_file']
+        self._val_file = params['train']['val_file']
         
 
     def __read_files(self) -> tuple:
-        train_file = sys.argv[1]
-        test_file = sys.argv[2]
+        split_dir = sys.argv[1]
 
-        train_df = pd.read_csv(train_file)
-        test_df = pd.read_csv(test_file)
-        return (train_df, test_df)
+        train_df = pd.read_csv(os.path.join(split_dir, self._train_file))
+        val_df = pd.read_csv(os.path.join(split_dir, self._val_file))
+        return (train_df, val_df)
 
 
     def train(self):
         print("Preparing training. Fasten your seatbelt!")
-        train_df, test_file = self.__read_files()
+        train_df, val_df = self.__read_files()
 
         if self._model == 'baseline':
             from baseline import Baseline

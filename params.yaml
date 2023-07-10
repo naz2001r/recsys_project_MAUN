@@ -10,14 +10,17 @@ prepare:
 
 split:
   train_size: 0.70
-  test_size: 0.30
+  test_size: 0.20
   seed: 20170428
   stratify_column: ISBN
 
 train:
   method: mean
   transformer_model: all-MiniLM-L6-v2
-  num_epochs: 1
+  num_epochs: 100
+  train_file: 'train.csv'
+  test_file: 'test.csv'
+  val_file: 'val.csv'
 
 evaluate:
   k_list:

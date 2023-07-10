@@ -16,31 +16,49 @@ stages:
     - data/split
 
   train_baseline_model:
-    cmd: python src/steps/train_baseline_model.py data/split/train.csv data/split/test.csv
+    cmd: python src/steps/train_baseline_model.py data/split
     deps:
     - data/split/train.csv
-    - data/split/test.csv
+    - data/split/val.csv
     - src/steps/train_baseline_model.py
     outs:
     - data/models/baseline
     
   train_collaborative_filtering:
-    cmd: python src/steps/train_collaborative_filtering.py data/split/train.csv data/split/test.csv
+    cmd: python src/steps/train_collaborative_filtering.py data/split
     deps:
     - data/split/train.csv
-    - data/split/test.csv
+    - data/split/val.csv
     - src/steps/train_collaborative_filtering.py
     outs:
     - data/models/CollaborativeFiltering
 
   train_factorization:
-    cmd: python src/steps/train_factorization.py data/split/train.csv data/split/test.csv
+    cmd: python src/steps/train_factorization.py data/split
     deps:
     - data/split/train.csv
-    - data/split/test.csv
+    - data/split/val.csv
     - src/steps/train_factorization.py
     outs:
     - data/models/MatrixFactorization
+
+  train_s_transformer:
+    cmd: python src/steps/train_s_transformer.py data/split
+    deps:
+    - data/split/train.csv
+    - data/split/val.csv
+    - src/steps/train_s_transformer.py
+    outs:
+    - data/models/STransformContentBase
+
+  train_hybrid_nn_model:
+    cmd: python src/steps/train_hybrid_nn_model.py data/split
+    deps:
+    - data/split/train.csv
+    - data/split/val.csv
+    - src/steps/train_hybrid_nn_model.py
+    outs:
+    - data/models/HybridNNmodel
 
   evaluate:
     cmd: python src/steps/evaluate.py data/split/test.csv 

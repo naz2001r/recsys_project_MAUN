@@ -86,7 +86,7 @@ class HybridNN_Recommender(BaseModel):
         self.user_to_index = None
         self.book_to_index = None
 
-    def _train_nn(self, df: pd.DataFrame, num_epoch: int = 100) -> HybridModel:
+    def _train_nn(self, df: pd.DataFrame, val_df: pd.DataFrame, num_epoch: int = 100) -> HybridModel:
         """
         Train the NN model.
 
@@ -136,12 +136,30 @@ class HybridNN_Recommender(BaseModel):
                 # Print statistics
                 running_loss += loss.item()
                 if i % 100 == 99:
-                    print(f"[{epoch + 1}, {i + 1}] loss: {running_loss / 100}")
+                    print(f"[{epoch + 1}, {i + 1}] Training loss: {running_loss / 100}")
                     running_loss = 0.0
+
+            valid_loss = 0.0
+            for i, data in enumerate(get_batch(val_df.copy(), batch_size=128, shuffle=True)):
+                # Get the inputs
+                user_ids =  torch.LongTensor(data["user_index"].values)
+                product_ids = torch.LongTensor(data["book_index"].values)
+                features = data[self.titleid].tolist()
+
+                #Forward + backward
+                outputs = model(user_ids, product_ids, features)
+                loss = loss_function(outputs, torch.Tensor(data[self.bookrank].tolist()))
+                
+                # Print statistics
+                valid_loss += loss.item()
+                
+            print(f"[{epoch + 1}] Validation loss: {running_loss / (i+1) }")
+
+            
 
         return model
 
-    def train(self, df: pd.DataFrame) -> None:
+    def train(self, df: pd.DataFrame, val_df: pd.DataFrame) -> None:
         """
         Train the model.
 
@@ -160,7 +178,7 @@ class HybridNN_Recommender(BaseModel):
         self.unique_users = df[self.userid].unique()
 
         print("Training model...")
-        self.model = self._train_nn(df.copy(), num_epoch=self.num_epochs)
+        self.model = self._train_nn(df.copy(), val_df.copy(), num_epoch=self.num_epochs)
 
 
     def _get_user_predictions(self, user_id: str, top_n: int = 3) -> list:
