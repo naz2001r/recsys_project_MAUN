@@ -15,7 +15,6 @@ split:
   stratify_column: ISBN
 
 train:
-  model: HybridNN_Recommender
   method: mean
   transformer_model: all-MiniLM-L6-v2
   num_epochs: 1
