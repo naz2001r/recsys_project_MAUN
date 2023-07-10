@@ -52,7 +52,10 @@ class TrainStepABC():
                                                num_epochs = self._num_epochs)
 
         print("Started training. Prepare to takeoff!")
-        train_model.train(train_df)
+        if self._model == 'HybridNN_Recommender':
+            train_model.train(train_df, val_df)
+        else:
+            train_model.train(train_df)
         print("Training finished. Applause for the captain!")
         train_model.dump(f'{self._model}_{self._method}' if self._method else self._model)
         print("Model dumped. Thanks for choosing us!")
