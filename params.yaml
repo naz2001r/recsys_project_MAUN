@@ -1,17 +1,23 @@
+filter_treshold: 10
+user_column: User-ID
+book_column: ISBN
+
 prepare:
+  users_file: BX-Users.csv
+  book_file: BX-Books.csv
+  rate_file: BX-Book-Ratings.csv
+
+split:
   train_size: 0.70
   test_size: 0.30
   seed: 20170428
-  stratify_column: 'ISBN'
-  users_file: "BX-Users.csv"
-  book_file: 'BX-Books.csv'
-  rate_file: 'BX-Book-Ratings.csv'
+  stratify_column: ISBN
 
 train:
-  model: 'baseline'
-  method: 'mean'
+  method: mean
 
 evaluate:
-  user_column: 'User-ID'
-  book_column: 'ISBN'
-  k_list: [5, 10, 15]
+  k_list:
+  - 10
+  - 20
+  - 100

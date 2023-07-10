@@ -6,10 +6,12 @@ import numpy as np
 import json
 
 import sys
-sys.path.append('.\\src\\models\\')
-sys.path.append('.\\src\\metrics\\')
+sys.path.append('./src/models/')
+sys.path.append('./src/metrics/')
+
 from base_model import BaseModel
 from metrics import ReccomenderMetrics
+import dvc.api
 
 if len(sys.argv) != 2:
     sys.stderr.write('Arguments error. Usage:\n')
@@ -18,8 +20,8 @@ if len(sys.argv) != 2:
     )
     sys.exit(1)
 
-params = yaml.safe_load(open('params.yaml'))['evaluate']
-k_list = params['k_list']
+params = dvc.api.params_show()
+k_list = params['evaluate']['k_list']
 user_column = params['user_column']
 book_column = params['book_column']
 
@@ -31,17 +33,27 @@ model_dump = ''
 if len(sys.argv) == 3:
     model_dump = sys.argv[2]
 else:
-    list_of_files = glob.glob('.\\data\\models\\**\\*.pkl', recursive=True)
-    model_dump = max(list_of_files, key=os.path.getctime)
-
-eval_model = BaseModel('base').load(model_dump)
-pred = eval_model.predict(eval_df[user_column].unique(), k=max(k_list))
+    list_of_files = glob.glob('./data/models/**/*.pkl', recursive=True)
+    print('Next models will be evaluated:')
+    print(list_of_files)
 
 metrics_obj = ReccomenderMetrics()
 metrics = {}
-for k in k_list:
-    metrics[f'map@{k}'] = metrics_obj.mapk([eval_df[eval_df[user_column] == user_id][book_column].unique().tolist() for user_id in eval_df[user_column].unique()], pred, k)
 
-os.makedirs('data\\eval', exist_ok=True)
-with open(os.path.join('data\\eval', "metrics.json"), "w") as mf:
+for model_dump in list_of_files:
+    eval_model = BaseModel('base').load(model_dump)
+    metrics[f'{eval_model.name()}'] = {}
+
+    for k in k_list:
+        users = eval_df[user_column].unique()
+        pred = eval_model.predict(users, k=k)
+        true = [eval_df[eval_df[user_column] == user_id].sort_values(by="Book-Rating", ascending=False)[book_column].tolist() for user_id in users]
+        metrics[f'{eval_model.name()}'][f'map@{k}'] = metrics_obj.mapk(true, pred, k)
+        metrics[f'{eval_model.name()}'][f'precision@{k}'] = np.mean([metrics_obj.precisionk(true[i], pred[i], k) for i in range(len(users))])
+        metrics[f'{eval_model.name()}'][f'recall@{k}'] = np.mean([metrics_obj.recallk(true[i], pred[i], k) for i in range(len(users))])
+        metrics[f'{eval_model.name()}'][f'ndcg@{k}'] = np.mean([metrics_obj.ndcgk(true[i], pred[i], k) for i in range(len(users))])
+    metrics[f'{eval_model.name()}'][f'coverage'] = metrics_obj.coverage(true, pred)
+
+os.makedirs('data/eval', exist_ok=True)
+with open(os.path.join('data/eval', "metrics.json"), "w") as mf:
     json.dump(metrics, mf)
