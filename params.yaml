@@ -9,7 +9,7 @@ prepare:
   rate_file: BX-Book-Ratings.csv
 
 split:
-  train_size: 0.70
+  train_size: 0.65
   test_size: 0.20
   seed: 20170428
   stratify_column: ISBN
@@ -17,7 +17,9 @@ split:
 train:
   method: mean
   transformer_model: all-MiniLM-L6-v2
-  num_epochs: 100
+  num_epochs: 10
+  patience: 5
+  min_delta: 0.001
   train_file: 'train.csv'
   test_file: 'test.csv'
   val_file: 'val.csv'

@@ -55,6 +55,8 @@ class HybridNN_Recommender(BaseModel):
     def __init__(self, 
                  transformer_model: str = 'all-MiniLM-L6-v2',
                  num_epochs: int = 100,
+                 patience: int = 5,
+                 min_delta: float = 0.001,
                  bookid: str = "ISBN", 
                  userid: str = "User-ID", 
                  bookrank: str = "Book-Rating",
@@ -78,6 +80,8 @@ class HybridNN_Recommender(BaseModel):
         self.titleid = titleid
         self.transformer_model = transformer_model
         self.num_epochs = num_epochs
+        self.patience = patience
+        self.min_delta = min_delta
 
         self.df = None
         self.rank = None
@@ -107,6 +111,9 @@ class HybridNN_Recommender(BaseModel):
         # Add the indices to the dataframe
         df["user_index"] = df[self.userid].apply(lambda x: self.user_to_index[x])
         df["book_index"] = df[self.bookid].apply(lambda x: self.book_to_index[x])
+        
+        val_df["user_index"] = val_df[self.userid].apply(lambda x: self.user_to_index[x])
+        val_df["book_index"] = val_df[self.bookid].apply(lambda x: self.book_to_index[x])
 
         # Create the model
         model = HybridModel(num_users, num_books, self.transformer_model)
@@ -114,6 +121,10 @@ class HybridNN_Recommender(BaseModel):
         # Define the loss function and optimizer
         loss_function = nn.MSELoss()
         optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
+
+        # Early stopping variablessss
+        min_validation_loss = np.inf
+        counter = 0
 
         # Train the model
         for epoch in range(num_epoch):
@@ -152,10 +163,19 @@ class HybridNN_Recommender(BaseModel):
                 
                 # Print statistics
                 valid_loss += loss.item()
+            valid_loss = valid_loss / (i+1)
                 
-            print(f"[{epoch + 1}] Validation loss: {running_loss / (i+1) }")
+            print(f"[{epoch + 1}] Validation loss: {valid_loss}")
 
-            
+            # Early stopping check
+            if valid_loss < min_validation_loss:
+                min_validation_loss = valid_loss
+                counter = 0
+            elif valid_loss > (min_validation_loss + self.min_delta):
+                counter += 1
+                if counter >= self.patience:
+                    print('Early stopping!\n')
+                    return model
 
         return model
 
