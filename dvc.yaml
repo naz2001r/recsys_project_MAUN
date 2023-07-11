@@ -6,6 +6,13 @@ stages:
     - src/steps/prepare.py
     outs:
     - data/prepared
+    params:
+    - user_column
+    - book_column
+    - rating_column
+    - prepare.users_file
+    - prepare.book_file
+    - prepare.rate_file
 
   split:
     cmd: python src/steps/split.py data/prepared/ data/split
@@ -14,6 +21,14 @@ stages:
     - src/steps/prepare.py
     outs:
     - data/split
+    params:
+    - user_column
+    - book_column
+    - rating_column
+    - split.train_size
+    - split.test_size
+    - split.seed
+    - split.stratify_column
 
   train_baseline_model:
     cmd: python src/steps/train_baseline_model.py data/split
@@ -23,6 +38,15 @@ stages:
     - src/steps/train_baseline_model.py
     outs:
     - data/models/baseline
+    params:
+    - filter_treshold
+    - user_column
+    - book_column
+    - rating_column
+    - train.method
+    - train.train_file
+    - train.test_file
+    - train.val_file
     
   train_collaborative_filtering:
     cmd: python src/steps/train_collaborative_filtering.py data/split
@@ -32,6 +56,14 @@ stages:
     - src/steps/train_collaborative_filtering.py
     outs:
     - data/models/CollaborativeFiltering
+    params:
+    - filter_treshold
+    - user_column
+    - book_column
+    - rating_column
+    - train.train_file
+    - train.test_file
+    - train.val_file
 
   train_factorization:
     cmd: python src/steps/train_factorization.py data/split
@@ -41,6 +73,14 @@ stages:
     - src/steps/train_factorization.py
     outs:
     - data/models/MatrixFactorization
+    params:
+    - filter_treshold
+    - user_column
+    - book_column
+    - rating_column
+    - train.train_file
+    - train.test_file
+    - train.val_file
 
   train_s_transformer:
     cmd: python src/steps/train_s_transformer.py data/split
@@ -50,6 +90,15 @@ stages:
     - src/steps/train_s_transformer.py
     outs:
     - data/models/STransformContentBase
+    params:
+    - filter_treshold
+    - user_column
+    - book_column
+    - rating_column
+    - train.transformer_model
+    - train.train_file
+    - train.test_file
+    - train.val_file
 
   train_hybrid_nn_model:
     cmd: python src/steps/train_hybrid_nn_model.py data/split
@@ -59,6 +108,17 @@ stages:
     - src/steps/train_hybrid_nn_model.py
     outs:
     - data/models/HybridNNmodel
+    params:
+    - filter_treshold
+    - user_column
+    - book_column
+    - rating_column
+    - train.num_epochs
+    - train.patience
+    - train.min_delta
+    - train.train_file
+    - train.test_file
+    - train.val_file
 
   evaluate:
     cmd: python src/steps/evaluate.py data/split/test.csv data/prepared/preprocessed.csv
@@ -67,6 +127,12 @@ stages:
     - data/prepared/preprocessed.csv
     - src/steps/evaluate.py
     - data/models
+    params:
+    - filter_treshold
+    - user_column
+    - book_column
+    - rating_column
+    - evaluate.k_list
     metrics:
     - data/eval/metrics.json:
         cache: false

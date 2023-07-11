@@ -87,12 +87,12 @@ stages:
     deps:
     - path: data/split/train.csv
       hash: md5
-      md5: 92974cdf391c72c5fa29f9d0991582a0
-      size: 2149739
+      md5: c7b46f5416b7f3c36cb0ab68241b3c68
+      size: 2204070
     - path: data/split/val.csv
       hash: md5
-      md5: 81018139fbc52123818c699dca62f0cf
-      size: 358366
+      md5: d2ab7b2d002788c3268ef4d3e71caedf
+      size: 304035
     - path: src/steps/train_baseline_model.py
       hash: md5
       md5: 764b774a449978f3986b4d2f0310a5f6
@@ -100,7 +100,7 @@ stages:
     outs:
     - path: data/models/baseline
       hash: md5
-      md5: 359c93fa14d4c5428652ca09a17d82bc.dir
+      md5: faddcbd081d15ba6572f93ce6c70d18e.dir
       size: 3747
       nfiles: 1
   train_collaborative_filtering:
@@ -108,12 +108,12 @@ stages:
     deps:
     - path: data/split/train.csv
       hash: md5
-      md5: 92974cdf391c72c5fa29f9d0991582a0
-      size: 2149739
+      md5: c7b46f5416b7f3c36cb0ab68241b3c68
+      size: 2204070
     - path: data/split/val.csv
       hash: md5
-      md5: 81018139fbc52123818c699dca62f0cf
-      size: 358366
+      md5: d2ab7b2d002788c3268ef4d3e71caedf
+      size: 304035
     - path: src/steps/train_collaborative_filtering.py
       hash: md5
       md5: ac74764d992ccd60d481ec750573bff3
@@ -121,20 +121,20 @@ stages:
     outs:
     - path: data/models/CollaborativeFiltering
       hash: md5
-      md5: 1ccedbd156356ce76628f157a1bb0654.dir
-      size: 6692388
+      md5: b083912541a16a56bce23273c6e42d1e.dir
+      size: 7766163
       nfiles: 1
   train_factorization:
     cmd: python src/steps/train_factorization.py data/split
     deps:
     - path: data/split/train.csv
       hash: md5
-      md5: 92974cdf391c72c5fa29f9d0991582a0
-      size: 2149739
+      md5: c7b46f5416b7f3c36cb0ab68241b3c68
+      size: 2204070
     - path: data/split/val.csv
       hash: md5
-      md5: 81018139fbc52123818c699dca62f0cf
-      size: 358366
+      md5: d2ab7b2d002788c3268ef4d3e71caedf
+      size: 304035
     - path: src/steps/train_factorization.py
       hash: md5
       md5: 79608b660670120cfb681a1092e4b7bc
@@ -142,20 +142,20 @@ stages:
     outs:
     - path: data/models/MatrixFactorization
       hash: md5
-      md5: fd16b9fe1ba968c2d9a0eaa69e0a7983.dir
-      size: 11920056
+      md5: 9225411c45e9ed8a198d0c79810fbe6b.dir
+      size: 13239134
       nfiles: 1
   train_s_transformer:
     cmd: python src/steps/train_s_transformer.py data/split
     deps:
     - path: data/split/train.csv
       hash: md5
-      md5: 92974cdf391c72c5fa29f9d0991582a0
-      size: 2149739
+      md5: c7b46f5416b7f3c36cb0ab68241b3c68
+      size: 2204070
     - path: data/split/val.csv
       hash: md5
-      md5: 81018139fbc52123818c699dca62f0cf
-      size: 358366
+      md5: d2ab7b2d002788c3268ef4d3e71caedf
+      size: 304035
     - path: src/steps/train_s_transformer.py
       hash: md5
       md5: 7877b0f8c7efc57093733ac31df1c6f4
@@ -163,8 +163,8 @@ stages:
     outs:
     - path: data/models/STransformContentBase
       hash: md5
-      md5: fe5df76f2422236001a1a1040c500369.dir
-      size: 92968679
+      md5: 5f26fbe97022226a935e6915fa1410ca.dir
+      size: 93005250
       nfiles: 1
   train_hybrid_nn_model:
     cmd: python src/steps/train_hybrid_nn_model.py data/split
@@ -181,9 +181,21 @@ stages:
       hash: md5
       md5: c8a381c82eb90b516a2fc3be745b0aed
       size: 290
+    params:
+      params.yaml:
+        book_column: ISBN
+        filter_treshold: 100
+        rating_column: Book-Rating
+        train.min_delta: 0.001
+        train.num_epochs: 1
+        train.patience: 5
+        train.test_file: test.csv
+        train.train_file: train.csv
+        train.val_file: val.csv
+        user_column: User-ID
     outs:
     - path: data/models/HybridNNmodel
       hash: md5
-      md5: e4a6e32b1fa28d817c71ce1d0dc16f1e.dir
-      size: 112368799
+      md5: ea14ef039497027f7ace7a9ab4a868d4.dir
+      size: 112369100
       nfiles: 1

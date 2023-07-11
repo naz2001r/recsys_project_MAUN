@@ -247,8 +247,13 @@ class HybridNN_Recommender(BaseModel):
 
         # Sort the books by their predicted rank
         all_books = all_books.sort_values(by="prediction", ascending=False)
+        prediction = all_books[:top_n][self.bookid].tolist()
+        if len(prediction) != top_n:
+            n_missing = top_n - len(prediction)
+            prediction.extend(self.rank.nlargest(top_n, self.bookrank)[self.bookid].tolist()[:n_missing])
+            print(f'Books appended for user {user_id}')
 
-        return all_books[:top_n][self.bookid].tolist()
+        return prediction
 
     def predict(self, users: str, k: int = 3) -> np.array:
         """

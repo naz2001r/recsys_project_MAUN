@@ -44,6 +44,7 @@ metrics_obj = ReccomenderMetrics()
 metrics = {}
 
 for model_dump in list_of_files:
+    print(f'Model evaluation started {model_dump}')
     eval_model = BaseModel('base').load(model_dump)
     metrics[f'{eval_model.name()}'] = {}
 
