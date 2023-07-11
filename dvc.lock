@@ -40,26 +40,30 @@ stages:
       size: 110520530
       nfiles: 1
   evaluate:
-    cmd: python src/steps/evaluate.py data/split/test.csv
+    cmd: python src/steps/evaluate.py data/split/test.csv data/prepared/preprocessed.csv
     deps:
     - path: data/models
       hash: md5
-      md5: c027351892f2abcf52d540cdf1fe012b.dir
-      size: 2947135330
+      md5: 84206f4d472ae0109d6643a72f38059b.dir
+      size: 128813724
       nfiles: 4
+    - path: data/prepared/preprocessed.csv
+      hash: md5
+      md5: 079954d1d68d9d9a93dd174e9e5481d8
+      size: 51048735
     - path: data/split/test.csv
       hash: md5
-      md5: 48ab49840233ce35b7f850d959a1905c
-      size: 4767041
+      md5: 77165b7fc0eeb0972e924f30f36837a2
+      size: 1989088
     - path: src/steps/evaluate.py
       hash: md5
-      md5: 111510fb8790862efec1799b53685bec
-      size: 2040
+      md5: 617d803982ca4ad6b72e11a1077eec6f
+      size: 2074
     outs:
     - path: data/eval/metrics.json
       hash: md5
-      md5: e205d53b6f449b19ed159b1bde1e15c3
-      size: 1423
+      md5: f8c0d12ab0141af909587b5de56415ce
+      size: 1425
   split:
     cmd: python src/steps/split.py data/prepared/ data/split
     deps:

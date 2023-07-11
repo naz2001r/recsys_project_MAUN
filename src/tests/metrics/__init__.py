@@ -63,9 +63,9 @@ class MetricsTests(unittest.TestCase):
 
     def test_coverage_should_return_correct_value(self):
         relevant_items = [['Nazarii', 'Uliana'], ['Nazarii', 'Uliana'], ['Nazarii', 'Uliana']]
-        all_items = [['Nazarii', 'Uliana', 'Mykola', 'Ivan', 'Oleksandr', 'Marianna'],    
-                     ['Mykola', 'Ivan', 'Oleksandr', 'Marianna', 'Nazarii', 'Uliana'],
-                     ['Mykola', 'Nazarii', 'Ivan', 'Uliana', 'Oleksandr', 'Marianna']]
+        all_items = ['Nazarii', 'Uliana', 'Mykola', 'Ivan', 'Oleksandr', 'Marianna',    
+                     'Mykola', 'Ivan', 'Oleksandr', 'Marianna', 'Nazarii', 'Uliana',
+                     'Mykola', 'Nazarii', 'Ivan', 'Uliana', 'Oleksandr', 'Marianna']
         metrics = ReccomenderMetrics()
         assert round(metrics.coverage(relevant_items, all_items), 2) == 0.33
 

@@ -132,10 +132,10 @@ class ReccomenderMetrics:
         
         Args:
             predicted(list): A list of predicted elements
-            catalog(list): A list of elements that are to be predicted
+            catalog(list): A list of all elements
         
         Returns:
             float: The coverage over the input lists
         """
         
-        return len(set(np.concatenate(predicted))) / len(set(np.concatenate(catalog)))
+        return len(set(np.concatenate(predicted))) / len(set(catalog))

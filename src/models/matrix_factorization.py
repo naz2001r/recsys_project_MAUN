@@ -85,17 +85,17 @@ class MatrixFactorization(BaseModel):
             return -1
         name_book = name_book[name_book[self.bookrank] == name_book[self.bookrank].max()]
         name_book = name_book[name_book['Total_No_Of_Users_Rated'] == name_book['Total_No_Of_Users_Rated'].max()]
-        name_book=name_book.iloc[0][3]
-        
+        name_book = name_book.iloc[0][5]
         return np.where(pd.DataFrame(self.user_book_matrix.columns)[self.bookid] == name_book)[0][0]
 
     # Recommendations
-    def _recommend(self, user_book: int, k: int) -> list:
+    def _recommend(self, user_book: int, user: int, k: int) -> list:
         """"
         Generate recommendations for the given user.
         
         Args:
             user_book (int): The index of the user's favourite book.
+            user (int): The user ID.
             k (int): The number of top recommendations to return.
         
         Returns:
@@ -109,11 +109,17 @@ class MatrixFactorization(BaseModel):
             sim.append(similarity)
         # Find most relevant books 
         sim = pd.DataFrame(sim)
-        recommend = sim.sort_values(by=0, ascending=False).reset_index().loc[1:k]
+        recommend = sim.sort_values(by=0, ascending=False).reset_index().loc[1:]
         indexes = list(recommend.set_index('index').index)
+
+        user_books = self.popular_books[self.popular_books[self.userid] == user][self.bookid].tolist()
         recom_book = []
         for i in indexes:
-            recom_book.append(pd.DataFrame(self.user_book_matrix.columns).iloc[i,0])
+            book = pd.DataFrame(self.user_book_matrix.columns).iloc[i,0]
+            if book not in user_books:
+                recom_book.append(book)
+            if len(recom_book) == k:
+                break
         
         return recom_book
     
@@ -133,7 +139,7 @@ class MatrixFactorization(BaseModel):
         if user_book == -1:
             #print(f"User {user} has not rated any book in the dataset. Returning top {k} popular books.")
             return self.rank.nlargest(k, self.bookrank)[self.bookid].tolist()
-        return self._recommend(user_book, k)
+        return self._recommend(user_book, user, k)
     
     def predict(self, users: np.array, k: int = 3) -> np.array:
         """

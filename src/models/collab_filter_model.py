@@ -44,7 +44,6 @@ class CollaborativeFiltering(BaseModel):
 
         # Delete books with less than filter_treshold ratings
         df = df.groupby(self.bookid).filter(lambda x: len(x) >= self.filter_treshold)
-        print(len(df))
 
         print("Training model...")
         self.rank = df.groupby([self.bookid]).agg({
@@ -56,7 +55,6 @@ class CollaborativeFiltering(BaseModel):
 
         print("Calculating similarities...")
         self.similarities = pd.DataFrame(index=self.user_book_matrix.index, columns=self.user_book_matrix.columns)
-        #self.similarities = self.user_book_matrix.progress_apply(lambda x: self.user_book_matrix.corrwith(x), axis=0)
         
         with ThreadPoolExecutor() as executor:
             futures = []
@@ -71,10 +69,27 @@ class CollaborativeFiltering(BaseModel):
 
         print("Training complete.")
 
-    def calculate_similarity(self, x):
+    def calculate_similarity(self, x: pd.Series) -> pd.Series:
+        """""
+        Calculate the similarity between the given user and all other users.
+        Args:
+            x (pd.Series): The user to calculate the similarity for.
+        Returns:
+            pd.Series: The similarity between the given user and all other users.
+        """
         return self.user_book_matrix.corrwith(x)
-    
-    def _process_user(self, user, k):
+
+    def _process_user(self, user: int, k: int) -> list:
+        """
+        Process the given user and return the top k recommendations.
+
+        Args:
+            user (int): The user to process.
+            k (int): The number of recommendations to return.
+        
+        Returns:
+            list: The top k recommendations for the given user.
+        """
         if user in self.user_book_matrix.index:
             user_books = self.user_book_matrix.loc[user]
             user_books = user_books[user_books > 0].index.values
@@ -86,16 +101,15 @@ class CollaborativeFiltering(BaseModel):
             similar_users = similar_users.groupby(similar_users.index).sum()
             if user in similar_users:
                 similar_users = similar_users.drop(user, errors='ignore')
-            similar_users = similar_users.sort_values(ascending=False)[:k]
+            similar_users = similar_users.sort_values(ascending=False)
 
             if similar_users.index.values.size > 0:
-                return similar_users.index.values
+                return [book for book in similar_users.index.values if book not in user_books][:k]
             else:
                 return self.rank.nlargest(k, self.bookrank)[self.bookid].to_list()
         else:
             return self.rank.nlargest(k, self.bookrank)[self.bookid].to_list()
 
-    
     def predict(self, users: np.array, k: int = 3) -> np.array:
         """
         Generate predictions for the given users.
@@ -124,36 +138,9 @@ class CollaborativeFiltering(BaseModel):
                     predictions.append(result)
                     pbar.update(1)
 
-        # for user in tqdm(users):
-        #     if user in self.user_book_matrix.index:
-        #         # get the books the user has rated
-        #         user_books = self.user_book_matrix.loc[user]
-        #         user_books = user_books[user_books > 0].index.values
-
-        #         # get the similar users
-        #         similar_users = pd.Series(dtype='float64')
-        #         for book in user_books:
-        #             similar_users = pd.concat([similar_users,self.similarities[book].dropna()])
-
-        #         similar_users = similar_users.groupby(similar_users.index).sum()
-        #         if user in similar_users:
-        #             similar_users = similar_users.drop(user, errors='ignore')
-        #         similar_users = similar_users.sort_values(ascending=False)[:k]
-
-        #         # get the books the similar users have rated
-        #         if similar_users.index.values.size > 0:
-        #             predictions.append(similar_users.index.values)
-        #         else:
-        #             # when we don't have any similar users, just recommend the top k books
-        #             # print(f"No similar users found for user {user}. Recommending top {k} books.")
-        #             predictions.append(self.rank.nlargest(k, self.bookrank)[self.bookid].to_list())
-        #     else:
-        #         # when we dozn't have any data on the user, just recommend the top k books
-        #         # print(f"User {user} not found in training data. Recommending top {k} books.")
-        #         predictions.append(self.rank.nlargest(k, self.bookrank)[self.bookid].to_list())
-
         return np.array(predictions)
-    
+
+
 if __name__ == "__main__":
     # Run this code to test if script is not failing
     from sklearn.model_selection import train_test_split

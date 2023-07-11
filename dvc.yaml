@@ -61,9 +61,10 @@ stages:
     - data/models/HybridNNmodel
 
   evaluate:
-    cmd: python src/steps/evaluate.py data/split/test.csv 
+    cmd: python src/steps/evaluate.py data/split/test.csv data/prepared/preprocessed.csv
     deps:
     - data/split/test.csv
+    - data/prepared/preprocessed.csv
     - src/steps/evaluate.py
     - data/models
     metrics:
