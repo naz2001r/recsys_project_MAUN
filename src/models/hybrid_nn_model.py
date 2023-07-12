@@ -24,9 +24,6 @@ class HybridModel(nn.Module):
     def __init__(self, num_users: int, num_products: int, transformer_model: str):
         super(HybridModel, self).__init__()
 
-        self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
-        print(f'Device selected {self.device}')
-
         self.features_embedding = SentenceTransformer(transformer_model)
         embeddings_size = self.features_embedding.get_sentence_embedding_dimension()
 
@@ -38,12 +35,12 @@ class HybridModel(nn.Module):
         self.relu = nn.ReLU()
         self.dropout = nn.Dropout(0.2)
 
-    def forward(self, user_ids, product_ids, features):
+    def forward(self, user_ids, product_ids, features, device):
         user_embeds = self.user_embedding(user_ids)
         product_embeds = self.product_embedding(product_ids)
         feature_embeds = self.features_embedding.encode(features, convert_to_tensor=True)
         
-        x = torch.cat((user_embeds, product_embeds, feature_embeds), dim=1).to(self.device)
+        x = torch.cat((user_embeds, product_embeds, feature_embeds), dim=1).to(device)
         x = self.relu(self.fc1(x))
         x = self.dropout(x)
         x = self.relu(self.fc2(x))
@@ -93,7 +90,10 @@ class HybridNN_Recommender(BaseModel):
         self.user_to_index = None
         self.book_to_index = None
 
-    def _train_nn(self, df: pd.DataFrame, val_df: pd.DataFrame, num_epoch: int = 100) -> HybridModel:
+    def _get_device(self) -> str:
+        return 'cuda' if torch.cuda.is_available() else 'cpu'
+
+    def _train_nn(self, df: pd.DataFrame, val_df: pd.DataFrame, num_epoch: int = 100, device: str = 'cpu') -> HybridModel:
         """
         Train the NN model.
 
@@ -134,16 +134,16 @@ class HybridNN_Recommender(BaseModel):
             running_loss = 0.0
             for i, data in enumerate(get_batch(df.copy(), batch_size=128, shuffle=True)):
                 # Get the inputs
-                user_ids = torch.LongTensor(data["user_index"].values, device=model.device)
-                product_ids = torch.LongTensor(data["book_index"].values, device=model.device)
+                user_ids = torch.LongTensor(data["user_index"].values, device=device)
+                product_ids = torch.LongTensor(data["book_index"].values, device=device)
                 features = data[self.titleid].tolist()
 
                 # Zero the parameter gradients
                 optimizer.zero_grad()
 
                 # Forward + backward + optimize
-                outputs = model(user_ids, product_ids, features)
-                loss = loss_function(outputs, torch.Tensor(data[self.bookrank].tolist(), device=model.device))
+                outputs = model(user_ids, product_ids, features, device)
+                loss = loss_function(outputs, torch.Tensor(data[self.bookrank].tolist(), device=device))
                 loss.backward()
                 optimizer.step()
 
@@ -156,13 +156,13 @@ class HybridNN_Recommender(BaseModel):
             valid_loss = 0.0
             for i, data in enumerate(get_batch(val_df.copy(), batch_size=128, shuffle=True)):
                 # Get the inputs
-                user_ids =  torch.LongTensor(data["user_index"].values, device=model.device)
-                product_ids = torch.LongTensor(data["book_index"].values, device=model.device)
+                user_ids =  torch.LongTensor(data["user_index"].values, device=device)
+                product_ids = torch.LongTensor(data["book_index"].values, device=device)
                 features = data[self.titleid].tolist()
 
                 #Forward + backward
-                outputs = model(user_ids, product_ids, features)
-                loss = loss_function(outputs, torch.Tensor(data[self.bookrank].tolist(), device=model.device))
+                outputs = model(user_ids, product_ids, features, device)
+                loss = loss_function(outputs, torch.Tensor(data[self.bookrank].tolist(), device=device))
                 
                 # Print statistics
                 valid_loss += loss.item()
@@ -200,11 +200,14 @@ class HybridNN_Recommender(BaseModel):
         print("Computing unique users...")
         self.unique_users = df[self.userid].unique()
 
+        device = self._get_device()
+        print(f'Device selected {device}')
+
         print("Training model...")
-        self.model = self._train_nn(df.copy(), val_df.copy(), num_epoch=self.num_epochs)
+        self.model = self._train_nn(df.copy(), val_df.copy(), num_epoch=self.num_epochs, device=device)
 
 
-    def _get_user_predictions(self, user_id: str, top_n: int = 3) -> list:
+    def _get_user_predictions(self, user_id: str, top_n: int = 3, device: str = 'cpu') -> list:
         """
         Get the predictions for a single user.
 
@@ -240,9 +243,10 @@ class HybridNN_Recommender(BaseModel):
 
         # Get the predictions
         all_books["prediction"] = self.model(
-            torch.LongTensor(all_books["user_index"].values, device=self.model.device),
-            torch.LongTensor(all_books["book_index"].values, device=self.model.device),
-            all_books[self.titleid].tolist()
+            torch.LongTensor(all_books["user_index"].values, device=device),
+            torch.LongTensor(all_books["book_index"].values, device=device),
+            all_books[self.titleid].tolist(),
+            device=device
         ).detach().numpy()
 
         # Remove the books the user has already read
@@ -270,12 +274,15 @@ class HybridNN_Recommender(BaseModel):
             np.array: The predictions for the users.
         """
 
+        device = self._get_device()
+        print(f'Device selected {device}')
+
         predictions = []
         with ThreadPoolExecutor() as executor:
             futures = []
             print("Loading executor")
             for user in tqdm(users):
-                future = executor.submit(self._get_user_predictions, user, k)
+                future = executor.submit(self._get_user_predictions, user, k, device)
                 futures.append(future)
             
             print("Collecting results from executor")
