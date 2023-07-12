@@ -12,6 +12,14 @@ stages:
       hash: md5
       md5: 6be9b5ade623ae30f074e32238d7b651
       size: 7113
+    params:
+      params.yaml:
+        book_column: ISBN
+        prepare.book_file: BX-Books.csv
+        prepare.rate_file: BX-Book-Ratings.csv
+        prepare.users_file: BX-Users.csv
+        rating_column: Book-Rating
+        user_column: User-ID
     outs:
     - path: data/prepared
       hash: md5
@@ -76,107 +84,154 @@ stages:
       hash: md5
       md5: 6be9b5ade623ae30f074e32238d7b651
       size: 7113
+    params:
+      params.yaml:
+        book_column: ISBN
+        rating_column: Book-Rating
+        split.seed: 20170428
+        split.stratify_column: ISBN
+        split.test_size: 0.2
+        split.train_size: 0.65
+        user_column: User-ID
     outs:
     - path: data/split
       hash: md5
-      md5: 9ca360f8b2beec63f0e0098996eb2db6.dir
-      size: 3135160
+      md5: 3c937334a243f3c4cf213f78d8c75b8e.dir
+      size: 18513770
       nfiles: 3
   train_baseline_model:
     cmd: python src/steps/train_baseline_model.py data/split
     deps:
     - path: data/split/train.csv
       hash: md5
-      md5: c7b46f5416b7f3c36cb0ab68241b3c68
-      size: 2204070
+      md5: 2b84e5e2a067b010fce9361f2f498c13
+      size: 12121071
     - path: data/split/val.csv
       hash: md5
-      md5: d2ab7b2d002788c3268ef4d3e71caedf
-      size: 304035
+      md5: 43a2915d649de4bc31a2b0c04caa172b
+      size: 2689429
     - path: src/steps/train_baseline_model.py
       hash: md5
       md5: 764b774a449978f3986b4d2f0310a5f6
       size: 312
+    params:
+      params.yaml:
+        book_column: ISBN
+        filter_treshold: 10
+        rating_column: Book-Rating
+        train.method: mean
+        train.test_file: test.csv
+        train.train_file: train.csv
+        train.val_file: val.csv
+        user_column: User-ID
     outs:
     - path: data/models/baseline
       hash: md5
-      md5: faddcbd081d15ba6572f93ce6c70d18e.dir
-      size: 3747
+      md5: 7d25302d719999f80e518757379d9f9d.dir
+      size: 115186
       nfiles: 1
   train_collaborative_filtering:
     cmd: python src/steps/train_collaborative_filtering.py data/split
     deps:
     - path: data/split/train.csv
       hash: md5
-      md5: c7b46f5416b7f3c36cb0ab68241b3c68
-      size: 2204070
+      md5: 2b84e5e2a067b010fce9361f2f498c13
+      size: 12121071
     - path: data/split/val.csv
       hash: md5
-      md5: d2ab7b2d002788c3268ef4d3e71caedf
-      size: 304035
+      md5: 43a2915d649de4bc31a2b0c04caa172b
+      size: 2689429
     - path: src/steps/train_collaborative_filtering.py
       hash: md5
       md5: ac74764d992ccd60d481ec750573bff3
       size: 292
+    params:
+      params.yaml:
+        book_column: ISBN
+        filter_treshold: 10
+        rating_column: Book-Rating
+        train.test_file: test.csv
+        train.train_file: train.csv
+        train.val_file: val.csv
+        user_column: User-ID
     outs:
     - path: data/models/CollaborativeFiltering
       hash: md5
-      md5: b083912541a16a56bce23273c6e42d1e.dir
-      size: 7766163
+      md5: db427ed2e390ebe13460081d08f9c485.dir
+      size: 1469458582
       nfiles: 1
   train_factorization:
     cmd: python src/steps/train_factorization.py data/split
     deps:
     - path: data/split/train.csv
       hash: md5
-      md5: c7b46f5416b7f3c36cb0ab68241b3c68
-      size: 2204070
+      md5: 2b84e5e2a067b010fce9361f2f498c13
+      size: 12121071
     - path: data/split/val.csv
       hash: md5
-      md5: d2ab7b2d002788c3268ef4d3e71caedf
-      size: 304035
+      md5: 43a2915d649de4bc31a2b0c04caa172b
+      size: 2689429
     - path: src/steps/train_factorization.py
       hash: md5
       md5: 79608b660670120cfb681a1092e4b7bc
       size: 289
+    params:
+      params.yaml:
+        book_column: ISBN
+        filter_treshold: 10
+        rating_column: Book-Rating
+        train.test_file: test.csv
+        train.train_file: train.csv
+        train.val_file: val.csv
+        user_column: User-ID
     outs:
     - path: data/models/MatrixFactorization
       hash: md5
-      md5: 9225411c45e9ed8a198d0c79810fbe6b.dir
-      size: 13239134
+      md5: f053cbad0aad0fabab4b282c78702b7c.dir
+      size: 1465604091
       nfiles: 1
   train_s_transformer:
     cmd: python src/steps/train_s_transformer.py data/split
     deps:
     - path: data/split/train.csv
       hash: md5
-      md5: c7b46f5416b7f3c36cb0ab68241b3c68
-      size: 2204070
+      md5: 2b84e5e2a067b010fce9361f2f498c13
+      size: 12121071
     - path: data/split/val.csv
       hash: md5
-      md5: d2ab7b2d002788c3268ef4d3e71caedf
-      size: 304035
+      md5: 43a2915d649de4bc31a2b0c04caa172b
+      size: 2689429
     - path: src/steps/train_s_transformer.py
       hash: md5
       md5: 7877b0f8c7efc57093733ac31df1c6f4
       size: 282
+    params:
+      params.yaml:
+        book_column: ISBN
+        filter_treshold: 10
+        rating_column: Book-Rating
+        train.test_file: test.csv
+        train.train_file: train.csv
+        train.transformer_model: all-MiniLM-L6-v2
+        train.val_file: val.csv
+        user_column: User-ID
     outs:
     - path: data/models/STransformContentBase
       hash: md5
-      md5: 5f26fbe97022226a935e6915fa1410ca.dir
-      size: 93005250
+      md5: f5a6c2eb8e02c9ed85a9262a0acd7c22.dir
+      size: 107984327
       nfiles: 1
   train_hybrid_nn_model:
     cmd: python src/steps/train_hybrid_nn_model.py data/split
     deps:
     - path: data/split/train.csv
       hash: md5
-      md5: c7b46f5416b7f3c36cb0ab68241b3c68
-      size: 2204070
+      md5: 2b84e5e2a067b010fce9361f2f498c13
+      size: 12121071
     - path: data/split/val.csv
       hash: md5
-      md5: d2ab7b2d002788c3268ef4d3e71caedf
-      size: 304035
+      md5: 43a2915d649de4bc31a2b0c04caa172b
+      size: 2689429
     - path: src/steps/train_hybrid_nn_model.py
       hash: md5
       md5: c8a381c82eb90b516a2fc3be745b0aed
@@ -184,10 +239,10 @@ stages:
     params:
       params.yaml:
         book_column: ISBN
-        filter_treshold: 100
+        filter_treshold: 10
         rating_column: Book-Rating
         train.min_delta: 0.001
-        train.num_epochs: 1
+        train.num_epochs: 100
         train.patience: 5
         train.test_file: test.csv
         train.train_file: train.csv
@@ -196,6 +251,6 @@ stages:
     outs:
     - path: data/models/HybridNNmodel
       hash: md5
-      md5: ea14ef039497027f7ace7a9ab4a868d4.dir
-      size: 112369100
+      md5: 08d1079b1a855c5a559867972d6ced07.dir
+      size: 164252465
       nfiles: 1
