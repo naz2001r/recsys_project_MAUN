@@ -1,3 +1,4 @@
+import re
 import os
 import sys
 import numpy as np
@@ -31,8 +32,6 @@ print('Read files')
 books = pd.read_csv(os.path.join(input_folder, book_file), sep=';', encoding='ISO-8859-1', on_bad_lines='skip', low_memory=False)
 users = pd.read_csv(os.path.join(input_folder, users_file), sep=';', encoding='ISO-8859-1', on_bad_lines='skip')
 ratings = pd.read_csv(os.path.join(input_folder, rate_file), sep=';', encoding='ISO-8859-1', on_bad_lines='skip')
-
-import re
 
 def preprocess_title(title: str) -> str:
     """
