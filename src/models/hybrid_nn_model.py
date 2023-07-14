@@ -90,6 +90,7 @@ class HybridNN_Recommender(BaseModel):
         self.unique_users = None
         self.user_to_index = None
         self.book_to_index = None
+        self.top_books = None
 
     def _get_device(self) -> str:
         return torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -201,6 +202,8 @@ class HybridNN_Recommender(BaseModel):
             self.bookrank: "mean"
         }).reset_index()
 
+        self.top_books = self.rank.sort_values(by="prediction", ascending=False)[self.bookid].tolist()
+
         print("Computing unique users...")
         self.unique_users = df[self.userid].unique()
 
@@ -209,18 +212,6 @@ class HybridNN_Recommender(BaseModel):
 
         print("Training model...")
         self.model = self._train_nn(df.copy(), val_df.copy(), num_epoch=self.num_epochs, device=device)
-
-    def _get_top_n_books(self, top_n: int = 3) -> list:
-        """
-        Get top n books
-
-        Args:
-            top_n (int, optional): The number of predictions to return. Defaults to 3.
-
-        Returns:
-            list: The top n books
-        """
-        return self.rank.nlargest(top_n, self.bookrank)[self.bookid].tolist()
 
     def _get_user_predictions(self, user_id: str, top_n: int = 3, device: str = 'cpu') -> list:
         """
@@ -240,7 +231,7 @@ class HybridNN_Recommender(BaseModel):
         start_time = time.time()
         # If the user is not in the dataset, return the top n books
         if user_id not in self.unique_users:
-            return self._get_top_n_books(top_n)
+            return self.top_books[:top_n]
         
         stop_time = time.time()
         print(f'self._get_top_n_books(top_n) = {stop_time - start_time}')
@@ -266,7 +257,7 @@ class HybridNN_Recommender(BaseModel):
         print(f'list(set(self.df[self.bookid]) - set(user_books)) = {stop_time - start_time}')
 
         if not not_readed_books:
-            return self._get_top_n_books(top_n)
+            return self.top_books[:top_n]
         
         start_time = time.time()
         all_books = pd.DataFrame({self.bookid: not_readed_books})
@@ -313,7 +304,7 @@ class HybridNN_Recommender(BaseModel):
         prediction = all_books[:top_n][self.bookid].tolist()
         if len(prediction) != top_n:
             n_missing = top_n - len(prediction)
-            prediction.extend(self.rank.nlargest(top_n, self.bookrank)[self.bookid].tolist()[:n_missing])
+            prediction.extend(self.top_books[:n_missing])
             print(f'Books appended for user {user_id}')
 
         stop_time = time.time()
