@@ -110,11 +110,13 @@ class HybridNN_Recommender(BaseModel):
 
         # Create a dictionary mapping users and books to their indices
         self.user_to_index = {original: index for index, original in enumerate(self.unique_users)}
-        self.book_to_index = {original: index for index, original in enumerate(df[self.bookid].unique())}
+        self.book_to_index = pd.Series(data = range(len(df[self.bookid].unique())), index = df[self.bookid].unique())
+        # self.book_to_index = {original: index for index, original in enumerate(df[self.bookid].unique())}
 
         # Add the indices to the dataframe
         df["user_index"] = df[self.userid].apply(lambda x: self.user_to_index[x])
-        df["book_index"] = df[self.bookid].apply(lambda x: self.book_to_index[x])
+        df["book_index"] = self.book_to_index[df[self.bookid]]
+#        df["book_index"] = df[self.bookid].apply(lambda x: self.book_to_index[x])
         
         val_df["user_index"] = val_df[self.userid].apply(lambda x: self.user_to_index[x])
         val_df["book_index"] = val_df[self.bookid].apply(lambda x: self.book_to_index[x])
@@ -233,36 +235,65 @@ class HybridNN_Recommender(BaseModel):
             list: The top n predictions for the user.
         """
 
+        pred_start_time = time.time()
+
         start_time = time.time()
         # If the user is not in the dataset, return the top n books
         if user_id not in self.unique_users:
             return self._get_top_n_books(top_n)
         
+        stop_time = time.time()
+        print(f'self._get_top_n_books(top_n) = {stop_time - start_time}')
+        
+        start_time = time.time()
         # Get the user index
         user_index = self.user_to_index[user_id]
+        
+        stop_time = time.time()
+        print(f'self.user_to_index[user_id] = {stop_time - start_time}')
 
+        start_time = time.time()
         # Get the user's books
         user_books = self.df[self.df[self.userid] == user_id][self.bookid].unique()
+        
+        stop_time = time.time()
+        print(f'self.df[self.df[self.userid] == user_id][self.bookid].unique() = {stop_time - start_time}')
 
+        start_time = time.time()
         # Create a dataframe with all the books which the user has not read
         not_readed_books = list(set(self.df[self.bookid]) - set(user_books))
+        stop_time = time.time()
+        print(f'list(set(self.df[self.bookid]) - set(user_books)) = {stop_time - start_time}')
 
         if not not_readed_books:
             return self._get_top_n_books(top_n)
         
+        start_time = time.time()
         all_books = pd.DataFrame({self.bookid: not_readed_books})
+        
+        stop_time = time.time()
+        print(f'all_books = pd.DataFrame({self.bookid: not_readed_books}) = {stop_time - start_time}')
 
         # Add the user index
         all_books["user_index"] = user_index
 
+        start_time = time.time()
         # Add the book index
-        all_books["book_index"] = all_books[self.bookid].apply(lambda x: self.book_to_index[x])
+        # all_books["book_index"] = all_books[self.bookid].apply(lambda x: self.book_to_index[x])
+        all_books["book_index"] = self.book_to_index[all_books[self.bookid]]
 
+        stop_time = time.time()
+        print(f'all_books["book_index"] = self.book_to_index[all_books[self.bookid]] = {stop_time - start_time}')
+        
         # Add the book title
+        start_time = time.time()
         all_books[self.titleid] = all_books[self.bookid].apply(lambda x: self.df[self.df[self.bookid] == x][self.titleid].iloc[0])
 
         stop_time = time.time()
-        print(f'Pandas part used time = {stop_time - start_time}')
+        print(f'all_books[self.bookid].apply(lambda x: self.df[self.df[self.bookid] == x][self.titleid].iloc[0]) = {stop_time - start_time}')
+        
+        pred_stop_time = time.time()
+        print(f'Pandas part finished {pred_stop_time - pred_start_time}')
 
         start_time = time.time()
         # Get the predictions
