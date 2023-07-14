@@ -39,7 +39,7 @@ class HybridModel(nn.Module):
     def forward(self, user_ids, product_ids, features, device):
         user_embeds = self.user_embedding(user_ids)
         product_embeds = self.product_embedding(product_ids)
-        feature_embeds = self.features_embedding.encode(features, convert_to_tensor=True)
+        feature_embeds = self.features_embedding.encode(features, convert_to_tensor=True, device=device)
         
         x = torch.cat((user_embeds, product_embeds, feature_embeds), dim=1).to(device)
         x = self.relu(self.fc1(x))
