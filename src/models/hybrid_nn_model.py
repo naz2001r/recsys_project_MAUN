@@ -111,16 +111,15 @@ class HybridNN_Recommender(BaseModel):
 
         # Create a dictionary mapping users and books to their indices
         self.user_to_index = {original: index for index, original in enumerate(self.unique_users)}
-        self.book_to_index = pd.Series(data = range(len(df[self.bookid].unique())), index = df[self.bookid].unique())
-        # self.book_to_index = {original: index for index, original in enumerate(df[self.bookid].unique())}
+        self.book_to_index = {original: index for index, original in enumerate(df[self.bookid].unique())}
+        self.bookid_to_title = {book_id: group[self.titleid].iloc[0] for book_id, group in df.groupby(self.bookid)}
 
         # Add the indices to the dataframe
-        df["user_index"] = df[self.userid].apply(lambda x: self.user_to_index[x])
-        df["book_index"] = self.book_to_index[df[self.bookid]]
-#        df["book_index"] = df[self.bookid].apply(lambda x: self.book_to_index[x])
+        df["user_index"] = df[self.userid].map(self.user_to_index)
+        df["book_index"] = df[self.bookid].map(self.book_to_index)
         
-        val_df["user_index"] = val_df[self.userid].apply(lambda x: self.user_to_index[x])
-        val_df["book_index"] = val_df[self.bookid].apply(lambda x: self.book_to_index[x])
+        val_df["user_index"] = val_df[self.userid].map(self.user_to_index)
+        val_df["book_index"] = val_df[self.bookid].map(self.book_to_index)
 
         # Create the model
         model = HybridModel(num_users, num_books, self.transformer_model)
@@ -202,7 +201,7 @@ class HybridNN_Recommender(BaseModel):
             self.bookrank: "mean"
         }).reset_index()
 
-        self.top_books = self.rank.sort_values(by="prediction", ascending=False)[self.bookid].tolist()
+        self.top_books = self.rank.sort_values(by=self.bookrank, ascending=False)[self.bookid].tolist()
 
         print("Computing unique users...")
         self.unique_users = df[self.userid].unique()
@@ -234,7 +233,7 @@ class HybridNN_Recommender(BaseModel):
             return self.top_books[:top_n]
         
         stop_time = time.time()
-        print(f'self._get_top_n_books(top_n) = {stop_time - start_time}')
+        print(f'return self.top_books[:top_n] = {stop_time - start_time}')
         
         start_time = time.time()
         # Get the user index
@@ -263,22 +262,21 @@ class HybridNN_Recommender(BaseModel):
         all_books = pd.DataFrame({self.bookid: not_readed_books})
         
         stop_time = time.time()
-        print(f'all_books = pd.DataFrame({self.bookid: not_readed_books}) = {stop_time - start_time}')
+        print(f'all_books = pd.DataFrame({{self.bookid: not_readed_books}}) = {stop_time - start_time}')
 
         # Add the user index
         all_books["user_index"] = user_index
 
         start_time = time.time()
         # Add the book index
-        # all_books["book_index"] = all_books[self.bookid].apply(lambda x: self.book_to_index[x])
-        all_books["book_index"] = self.book_to_index[all_books[self.bookid]]
+        all_books["book_index"] = all_books[self.bookid].map(self.book_to_index)
 
         stop_time = time.time()
         print(f'all_books["book_index"] = self.book_to_index[all_books[self.bookid]] = {stop_time - start_time}')
         
         # Add the book title
         start_time = time.time()
-        all_books[self.titleid] = all_books[self.bookid].apply(lambda x: self.df[self.df[self.bookid] == x][self.titleid].iloc[0])
+        all_books[self.titleid] = all_books[self.bookid].map(self.bookid_to_title)
 
         stop_time = time.time()
         print(f'all_books[self.bookid].apply(lambda x: self.df[self.df[self.bookid] == x][self.titleid].iloc[0]) = {stop_time - start_time}')
