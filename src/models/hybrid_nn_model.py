@@ -91,7 +91,7 @@ class HybridNN_Recommender(BaseModel):
         self.book_to_index = None
 
     def _get_device(self) -> str:
-        return 'cuda' if torch.cuda.is_available() else 'cpu'
+        return torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     def _train_nn(self, df: pd.DataFrame, val_df: pd.DataFrame, num_epoch: int = 100, device: str = 'cpu') -> HybridModel:
         """
@@ -120,6 +120,7 @@ class HybridNN_Recommender(BaseModel):
 
         # Create the model
         model = HybridModel(num_users, num_books, self.transformer_model)
+        model = model.to(device=device)
 
         # Define the loss function and optimizer
         loss_function = nn.MSELoss()
@@ -134,8 +135,8 @@ class HybridNN_Recommender(BaseModel):
             running_loss = 0.0
             for i, data in enumerate(get_batch(df.copy(), batch_size=128, shuffle=True)):
                 # Get the inputs
-                user_ids = torch.LongTensor(data["user_index"].values, device=device)
-                product_ids = torch.LongTensor(data["book_index"].values, device=device)
+                user_ids = torch.LongTensor(data["user_index"].values).to(device=device)
+                product_ids = torch.LongTensor(data["book_index"].values).to(device=device)
                 features = data[self.titleid].tolist()
 
                 # Zero the parameter gradients
@@ -143,7 +144,7 @@ class HybridNN_Recommender(BaseModel):
 
                 # Forward + backward + optimize
                 outputs = model(user_ids, product_ids, features, device)
-                loss = loss_function(outputs, torch.Tensor(data[self.bookrank].tolist(), device=device))
+                loss = loss_function(outputs, torch.Tensor(data[self.bookrank].tolist()).to(device=device))
                 loss.backward()
                 optimizer.step()
 
@@ -156,13 +157,13 @@ class HybridNN_Recommender(BaseModel):
             valid_loss = 0.0
             for i, data in enumerate(get_batch(val_df.copy(), batch_size=128, shuffle=True)):
                 # Get the inputs
-                user_ids =  torch.LongTensor(data["user_index"].values, device=device)
-                product_ids = torch.LongTensor(data["book_index"].values, device=device)
+                user_ids =  torch.LongTensor(data["user_index"].values).to(device=device)
+                product_ids = torch.LongTensor(data["book_index"].values).to(device=device)
                 features = data[self.titleid].tolist()
 
                 #Forward + backward
                 outputs = model(user_ids, product_ids, features, device)
-                loss = loss_function(outputs, torch.Tensor(data[self.bookrank].tolist(), device=device))
+                loss = loss_function(outputs, torch.Tensor(data[self.bookrank].tolist()).to(device=device))
                 
                 # Print statistics
                 valid_loss += loss.item()
@@ -243,8 +244,8 @@ class HybridNN_Recommender(BaseModel):
 
         # Get the predictions
         all_books["prediction"] = self.model(
-            torch.LongTensor(all_books["user_index"].values, device=device),
-            torch.LongTensor(all_books["book_index"].values, device=device),
+            torch.LongTensor(all_books["user_index"].values).to(device=device),
+            torch.LongTensor(all_books["book_index"].values).to(device=device),
             all_books[self.titleid].tolist(),
             device=device
         ).detach().numpy()
@@ -275,6 +276,7 @@ class HybridNN_Recommender(BaseModel):
         """
 
         device = self._get_device()
+        self.model = self.model.to(device=device)
         print(f'Device selected {device}')
 
         predictions = []
