@@ -82,7 +82,6 @@ pyOpenSSL==23.2.0
 pyparsing==3.0.9
 python-dateutil==2.8.2
 pytz==2023.3
-pywin32==306
 PyYAML==6.0
 requests==2.31.0
 rich==13.4.2
