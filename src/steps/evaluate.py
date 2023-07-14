@@ -47,15 +47,16 @@ for model_dump in list_of_files:
     print(f'Model evaluation started {model_dump}')
     eval_model = BaseModel('base').load(model_dump)
     metrics[f'{eval_model.name()}'] = {}
+    
+    users = eval_df[user_column].unique()
+    pred = eval_model.predict(users, k=max(k_list))
+    true = [eval_df[eval_df[user_column] == user_id].sort_values(by="Book-Rating", ascending=False)[book_column].tolist() for user_id in users]
 
     for k in k_list:
-        users = eval_df[user_column].unique()
-        pred = eval_model.predict(users, k=k)
-        true = [eval_df[eval_df[user_column] == user_id].sort_values(by="Book-Rating", ascending=False)[book_column].tolist() for user_id in users]
         metrics[f'{eval_model.name()}'][f'map@{k}'] = metrics_obj.mapk(true, pred, k)
-        metrics[f'{eval_model.name()}'][f'precision@{k}'] = np.mean([metrics_obj.precisionk(true[i], pred[i], k) for i in range(len(users))])
-        metrics[f'{eval_model.name()}'][f'recall@{k}'] = np.mean([metrics_obj.recallk(true[i], pred[i], k) for i in range(len(users))])
-        metrics[f'{eval_model.name()}'][f'ndcg@{k}'] = np.mean([metrics_obj.ndcgk(true[i], pred[i], k) for i in range(len(users))])
+        metrics[f'{eval_model.name()}'][f'precision@{k}'] = np.mean([metrics_obj.precisionk(true[i][:k], pred[i][:k], k) for i in range(len(users))])
+        metrics[f'{eval_model.name()}'][f'recall@{k}'] = np.mean([metrics_obj.recallk(true[i][:k], pred[i][:k], k) for i in range(len(users))])
+        metrics[f'{eval_model.name()}'][f'ndcg@{k}'] = np.mean([metrics_obj.ndcgk(true[i][:k], pred[i][:k], k) for i in range(len(users))])
     
     metrics[f'{eval_model.name()}'][f'coverage'] = metrics_obj.coverage(true, df_full["ISBN"].unique())
 

@@ -6,6 +6,7 @@ from tqdm import tqdm
 from base_model import BaseModel
 from concurrent.futures.thread import ThreadPoolExecutor
 import concurrent
+import time
 
 from sentence_transformers import SentenceTransformer
 tqdm.pandas()
@@ -13,7 +14,7 @@ tqdm.pandas()
 
 def get_batch(dataset, batch_size, shuffle=True):
     if shuffle:
-        dataset =dataset.sample(frac=1).reset_index(drop=True)
+        dataset = dataset.sample(frac=1).reset_index(drop=True)
     for i in range(0, len(dataset), batch_size):
         if i + batch_size > len(dataset):
             yield dataset.iloc[i:]
@@ -207,6 +208,17 @@ class HybridNN_Recommender(BaseModel):
         print("Training model...")
         self.model = self._train_nn(df.copy(), val_df.copy(), num_epoch=self.num_epochs, device=device)
 
+    def _get_top_n_books(self, top_n: int = 3) -> list:
+        """
+        Get top n books
+
+        Args:
+            top_n (int, optional): The number of predictions to return. Defaults to 3.
+
+        Returns:
+            list: The top n books
+        """
+        return self.rank.nlargest(top_n, self.bookrank)[self.bookid].tolist()
 
     def _get_user_predictions(self, user_id: str, top_n: int = 3, device: str = 'cpu') -> list:
         """
@@ -215,14 +227,16 @@ class HybridNN_Recommender(BaseModel):
         Args:
             user_id (str): The user ID.
             top_n (int, optional): The number of predictions to return. Defaults to 3.
+            device (str, optional): The device to run the computations on. Defaults to 'cpu'.
 
         Returns:
             list: The top n predictions for the user.
         """
 
+        start_time = time.time()
         # If the user is not in the dataset, return the top n books
         if user_id not in self.unique_users:
-            return self.rank.nlargest(top_n, self.bookrank)[self.bookid].tolist()
+            return self._get_top_n_books(top_n)
         
         # Get the user index
         user_index = self.user_to_index[user_id]
@@ -230,8 +244,13 @@ class HybridNN_Recommender(BaseModel):
         # Get the user's books
         user_books = self.df[self.df[self.userid] == user_id][self.bookid].unique()
 
-        # Create a dataframe with all the books
-        all_books = pd.DataFrame({self.bookid: self.df[self.bookid].unique()})
+        # Create a dataframe with all the books which the user has not read
+        not_readed_books = list(set(self.df[self.bookid]) - set(user_books))
+
+        if not not_readed_books:
+            return self._get_top_n_books(top_n)
+        
+        all_books = pd.DataFrame({self.bookid: not_readed_books})
 
         # Add the user index
         all_books["user_index"] = user_index
@@ -242,17 +261,22 @@ class HybridNN_Recommender(BaseModel):
         # Add the book title
         all_books[self.titleid] = all_books[self.bookid].apply(lambda x: self.df[self.df[self.bookid] == x][self.titleid].iloc[0])
 
+        stop_time = time.time()
+        print(f'Pandas part used time = {stop_time - start_time}')
+
+        start_time = time.time()
         # Get the predictions
-        all_books["prediction"] = self.model(
-            torch.LongTensor(all_books["user_index"].values).to(device=device),
-            torch.LongTensor(all_books["book_index"].values).to(device=device),
-            all_books[self.titleid].tolist(),
-            device=device
-        ).detach().numpy()
+        user_index_tensor = torch.LongTensor(all_books["user_index"].values).to(device)
+        book_index_tensor = torch.LongTensor(all_books["book_index"].values).to(device)
 
-        # Remove the books the user has already read
-        all_books = all_books[~all_books[self.bookid].isin(user_books)]
+        with torch.no_grad():
+            predictions = self.model(user_index_tensor, book_index_tensor, all_books[self.titleid].tolist(), device)
+        all_books["prediction"] = predictions.detach().cpu().numpy()
 
+        stop_time = time.time()
+        print(f'NN part used time = {stop_time - start_time}')
+
+        stop_time = time.time()
         # Sort the books by their predicted rank
         all_books = all_books.sort_values(by="prediction", ascending=False)
         prediction = all_books[:top_n][self.bookid].tolist()
@@ -261,6 +285,8 @@ class HybridNN_Recommender(BaseModel):
             prediction.extend(self.rank.nlargest(top_n, self.bookrank)[self.bookid].tolist()[:n_missing])
             print(f'Books appended for user {user_id}')
 
+        stop_time = time.time()
+        print(f'Post processing part used time = {stop_time - start_time}')
         return prediction
 
     def predict(self, users: str, k: int = 3) -> np.array:
@@ -274,23 +300,26 @@ class HybridNN_Recommender(BaseModel):
         Returns:
             np.array: The predictions for the users.
         """
-
         device = self._get_device()
         self.model = self.model.to(device=device)
         print(f'Device selected {device}')
 
         predictions = []
-        with ThreadPoolExecutor() as executor:
-            futures = []
-            print("Loading executor")
-            for user in tqdm(users):
-                future = executor.submit(self._get_user_predictions, user, k, device)
-                futures.append(future)
+        # with ThreadPoolExecutor(max_workers=1) as executor:
+        #     futures = []
+        #     print("Loading executor")
+        #     for user in tqdm(users):
+        #         future = executor.submit(self._get_user_predictions, user, k, device)
+        #         futures.append(future)
             
-            print("Collecting results from executor")
-            with tqdm(total=len(users)) as pbar:
-                for future in concurrent.futures.as_completed(futures):
-                    result = future.result()
-                    predictions.append(result)
-                    pbar.update(1)
+        #     print("Collecting results from executor")
+        #     with tqdm(total=len(users)) as pbar:
+        #         for future in concurrent.futures.as_completed(futures):
+        #             result = future.result()
+        #             predictions.append(result)
+        #             pbar.update(1)
+
+        for i in tqdm(range(len(users))):
+            predictions.append(self._get_user_predictions(users[i], k, device))
+
         return np.array(predictions)
