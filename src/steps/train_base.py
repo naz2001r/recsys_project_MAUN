@@ -1,6 +1,7 @@
 import dvc.api
 import sys
 import pandas as pd
+import os
 sys.path.append('./src/models/')
 
 
@@ -11,20 +12,25 @@ class TrainStepABC():
         self._model = model_name
         self._method = params['train']['method']
         self._filter_treshold = params['filter_treshold']
+        self._transformer_model = params['train']['transformer_model']
+        self._num_epochs = params['train']['num_epochs']
+        self._patience = params['train']['patience']
+        self._min_delta = params['train']['min_delta']
+        self._train_file = params['train']['train_file']
+        self._val_file = params['train']['val_file']
         
 
     def __read_files(self) -> tuple:
-        train_file = sys.argv[1]
-        test_file = sys.argv[2]
+        split_dir = sys.argv[1]
 
-        train_df = pd.read_csv(train_file)
-        test_df = pd.read_csv(test_file)
-        return (train_df, test_df)
+        train_df = pd.read_csv(os.path.join(split_dir, self._train_file))
+        val_df = pd.read_csv(os.path.join(split_dir, self._val_file))
+        return (train_df, val_df)
 
 
     def train(self):
         print("Preparing training. Fasten your seatbelt!")
-        train_df, test_file = self.__read_files()
+        train_df, val_df = self.__read_files()
 
         if self._model == 'baseline':
             from baseline import Baseline
@@ -38,8 +44,22 @@ class TrainStepABC():
             from matrix_factorization import MatrixFactorization
             train_model = MatrixFactorization(filter_treshold=self._filter_treshold)
 
+        elif self._model == 'STransformer':
+            from stransformer_content_based import STransformContentBase
+            train_model = STransformContentBase(transformer_model = self._transformer_model)
+
+        elif self._model == 'HybridNN_Recommender':
+            from hybrid_nn_model import HybridNN_Recommender
+            train_model = HybridNN_Recommender(transformer_model = self._transformer_model, 
+                                               num_epochs = self._num_epochs,
+                                               patience = self._patience,
+                                               min_delta = self._min_delta)
+
         print("Started training. Prepare to takeoff!")
-        train_model.train(train_df)
+        if self._model == 'HybridNN_Recommender':
+            train_model.train(train_df, val_df)
+        else:
+            train_model.train(train_df)
         print("Training finished. Applause for the captain!")
         train_model.dump(f'{self._model}_{self._method}' if self._method else self._model)
         print("Model dumped. Thanks for choosing us!")

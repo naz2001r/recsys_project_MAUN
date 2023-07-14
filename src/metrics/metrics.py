@@ -21,6 +21,7 @@ class ReccomenderMetrics:
         
         score = 0.0
         num_hits = 0.0
+        actual = actual[:k]
         for i,p in enumerate(predicted[:k]):
             if p in actual and p not in predicted[:i]:
                 num_hits += 1.0

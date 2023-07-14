@@ -9,5 +9,5 @@ if len(sys.argv) != 2:
     )
     sys.exit(1)
 
-trainer = TrainStepABC('CollaborativeFiltering')
+trainer = TrainStepABC('STransformer')
 trainer.train()
