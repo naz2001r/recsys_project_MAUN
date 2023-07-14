@@ -236,7 +236,7 @@ class HybridNN_Recommender(BaseModel):
         user_books = self.df[self.df[self.userid] == user_id][self.bookid].unique()
 
         # Create a dataframe with all the books which the user has not read
-        not_readed_books = list(set(self.df[self.bookid]) - set(user_books))
+        not_readed_books = list(set(self.df[self.bookid]).difference(user_books))
 
         if not not_readed_books:
             return self.top_books[:top_n]
