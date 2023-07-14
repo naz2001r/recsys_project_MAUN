@@ -6,7 +6,6 @@ from tqdm import tqdm
 from base_model import BaseModel
 from concurrent.futures.thread import ThreadPoolExecutor
 import concurrent
-import time
 
 from sentence_transformers import SentenceTransformer
 tqdm.pandas()
@@ -225,66 +224,33 @@ class HybridNN_Recommender(BaseModel):
             list: The top n predictions for the user.
         """
 
-        pred_start_time = time.time()
-
-        start_time = time.time()
         # If the user is not in the dataset, return the top n books
         if user_id not in self.unique_users:
             return self.top_books[:top_n]
         
-        stop_time = time.time()
-        print(f'return self.top_books[:top_n] = {stop_time - start_time}')
-        
-        start_time = time.time()
         # Get the user index
         user_index = self.user_to_index[user_id]
         
-        stop_time = time.time()
-        print(f'self.user_to_index[user_id] = {stop_time - start_time}')
-
-        start_time = time.time()
         # Get the user's books
         user_books = self.df[self.df[self.userid] == user_id][self.bookid].unique()
         
-        stop_time = time.time()
-        print(f'self.df[self.df[self.userid] == user_id][self.bookid].unique() = {stop_time - start_time}')
-
-        start_time = time.time()
         # Create a dataframe with all the books which the user has not read
         not_readed_books = list(set(self.df[self.bookid]).difference(user_books))
-        stop_time = time.time()
-        print(f'list(set(self.df[self.bookid]) - set(user_books)) = {stop_time - start_time}')
 
         if not not_readed_books:
             return self.top_books[:top_n]
         
-        start_time = time.time()
         all_books = pd.DataFrame({self.bookid: not_readed_books})
         
-        stop_time = time.time()
-        print(f'all_books = pd.DataFrame({{self.bookid: not_readed_books}}) = {stop_time - start_time}')
-
         # Add the user index
         all_books["user_index"] = user_index
 
-        start_time = time.time()
         # Add the book index
         all_books["book_index"] = all_books[self.bookid].map(self.book_to_index)
-
-        stop_time = time.time()
-        print(f'all_books["book_index"] = self.book_to_index[all_books[self.bookid]] = {stop_time - start_time}')
         
         # Add the book title
-        start_time = time.time()
         all_books[self.titleid] = all_books[self.bookid].map(self.bookid_to_title)
 
-        stop_time = time.time()
-        print(f'all_books[self.bookid].apply(lambda x: self.df[self.df[self.bookid] == x][self.titleid].iloc[0]) = {stop_time - start_time}')
-        
-        pred_stop_time = time.time()
-        print(f'Pandas part finished {pred_stop_time - pred_start_time}')
-
-        start_time = time.time()
         # Get the predictions
         user_index_tensor = torch.LongTensor(all_books["user_index"].values).to(device)
         book_index_tensor = torch.LongTensor(all_books["book_index"].values).to(device)
@@ -293,10 +259,6 @@ class HybridNN_Recommender(BaseModel):
             predictions = self.model(user_index_tensor, book_index_tensor, all_books[self.titleid].tolist(), device)
         all_books["prediction"] = predictions.detach().cpu().numpy()
 
-        stop_time = time.time()
-        print(f'NN part used time = {stop_time - start_time}')
-
-        stop_time = time.time()
         # Sort the books by their predicted rank
         all_books = all_books.sort_values(by="prediction", ascending=False)
         prediction = all_books[:top_n][self.bookid].tolist()
@@ -305,8 +267,6 @@ class HybridNN_Recommender(BaseModel):
             prediction.extend(self.top_books[:n_missing])
             print(f'Books appended for user {user_id}')
 
-        stop_time = time.time()
-        print(f'Post processing part used time = {stop_time - start_time}')
         return prediction
 
     def predict(self, users: str, k: int = 3) -> np.array:
@@ -325,21 +285,18 @@ class HybridNN_Recommender(BaseModel):
         print(f'Device selected {device}')
 
         predictions = []
-        # with ThreadPoolExecutor(max_workers=1) as executor:
-        #     futures = []
-        #     print("Loading executor")
-        #     for user in tqdm(users):
-        #         future = executor.submit(self._get_user_predictions, user, k, device)
-        #         futures.append(future)
+        with ThreadPoolExecutor() as executor:
+            futures = []
+            print("Loading executor")
+            for user in tqdm(users):
+                future = executor.submit(self._get_user_predictions, user, k, device)
+                futures.append(future)
             
-        #     print("Collecting results from executor")
-        #     with tqdm(total=len(users)) as pbar:
-        #         for future in concurrent.futures.as_completed(futures):
-        #             result = future.result()
-        #             predictions.append(result)
-        #             pbar.update(1)
-
-        for i in tqdm(range(len(users))):
-            predictions.append(self._get_user_predictions(users[i], k, device))
+            print("Collecting results from executor")
+            with tqdm(total=len(users)) as pbar:
+                for future in concurrent.futures.as_completed(futures):
+                    result = future.result()
+                    predictions.append(result)
+                    pbar.update(1)
 
         return np.array(predictions)

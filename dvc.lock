@@ -87,6 +87,7 @@ stages:
     params:
       params.yaml:
         book_column: ISBN
+        filter_treshold: 10
         rating_column: Book-Rating
         split.seed: 20170428
         split.stratify_column: ISBN
@@ -242,7 +243,7 @@ stages:
         filter_treshold: 10
         rating_column: Book-Rating
         train.min_delta: 0.001
-        train.num_epochs: 100
+        train.num_epochs: 1
         train.patience: 5
         train.test_file: test.csv
         train.train_file: train.csv
@@ -251,6 +252,6 @@ stages:
     outs:
     - path: data/models/HybridNNmodel
       hash: md5
-      md5: 08d1079b1a855c5a559867972d6ced07.dir
-      size: 164252465
+      md5: 62ed39a9155230fe52cc175a0f259300.dir
+      size: 164334201
       nfiles: 1
