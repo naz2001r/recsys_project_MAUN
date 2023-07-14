@@ -251,7 +251,7 @@ class HybridNN_Recommender(BaseModel):
 
         start_time = time.time()
         # Create a dataframe with all the books which the user has not read
-        not_readed_books = list(set(self.df[self.bookid]) - set(user_books))
+        not_readed_books = list(set(self.df[self.bookid]).difference(user_books))
         stop_time = time.time()
         print(f'list(set(self.df[self.bookid]) - set(user_books)) = {stop_time - start_time}')
 
