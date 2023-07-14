@@ -1,0 +1,25 @@
+[tool.poetry]
+name = "rec-sys-maun"
+version = "0.0.0"
+description = "Reccomender systems project"
+authors = ["Your Name <you@example.com>"]
+license = "Apache-2.0"
+readme = "README.md"
+packages = [{include = "rec_sys_maun"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+dvc = "^3.5.1"
+dvc-gdrive = "^2.20.0"
+pandas = "^2.0.3"
+numpy = "^1.25.1"
+scikit-learn = "^1.3.0"
+tqdm = "^4.65.0"
+sentence-transformers = "^2.2.2"
+torch = "^2.0.1"
+scipy = "^1.11.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
