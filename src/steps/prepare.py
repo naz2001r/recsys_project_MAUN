@@ -32,6 +32,38 @@ books = pd.read_csv(os.path.join(input_folder, book_file), sep=';', encoding='IS
 users = pd.read_csv(os.path.join(input_folder, users_file), sep=';', encoding='ISO-8859-1', on_bad_lines='skip')
 ratings = pd.read_csv(os.path.join(input_folder, rate_file), sep=';', encoding='ISO-8859-1', on_bad_lines='skip')
 
+import re
+
+def preprocess_title(title: str) -> str:
+    """
+    Preprocesses a book title by replacing '&amp;' with '&',
+    removing '(Paperback)', removing leading/trailing whitespaces,
+    removing extra spaces before/after punctuation, and normalizing whitespace.
+
+    Args:
+        title (str): The book title to preprocess.
+
+    Returns:
+        str: The preprocessed book title.
+    """
+    # Replace '&amp;' with '&'
+    title = title.replace('&amp;', '&')
+
+    # Remove '(Paperback)'
+    title = re.sub(r'\(Paperback\)', '', title)
+
+    # Remove leading/trailing whitespaces
+    title = title.strip()
+
+    # Remove extra spaces before/after punctuation
+    title = re.sub(r'\s*([.,:;!?])\s*', r'\1 ', title)
+
+    # Normalize whitespace
+    title = re.sub(r'\s+', ' ', title)
+
+    return title
+
+
 print('Start preprocessing books dataset')
 # First work with books dataset
 
@@ -71,13 +103,15 @@ books.Publisher.fillna('other',inplace=True)
 # exploring 'Book-Author' column and filling Nan of Book-Author with others
 books['Book-Author'].fillna('other',inplace=True)
 
+# preprocess titles
+books['Book-Title'] = books['Book-Title'].apply(preprocess_title)
+
 print('End preprocessing books dataset\n')
 
 print('Start preprocessing ratings dataset')
 # Work with ratings dataset
 
 #  Ratings dataset should have books only which exist in our books dataset and should have ratings from users which exist in users dataset. 
-
 ratings_new = ratings[ratings.ISBN.isin(books.ISBN)]
 ratings_new = ratings_new[ratings_new['User-ID'].isin(users['User-ID'])]
 
