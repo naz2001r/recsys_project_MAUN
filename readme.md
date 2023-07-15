@@ -7,8 +7,9 @@ Project install steps:
 - clone repo
 `git clone https://github.com/naz2001r/recsys_project_MAUN.git`
 - create virtual environment
-`python -m venv env`
-- activate virtual environment `source env/bin/activate` (for Linux and MacOS) | `.\env\Scripts\activate.bat` (for Windows)
+`conda create --name py311 python=3.11`
+- activate virtual environment 
+`conda activate py311` (conda) | `source env/bin/activate` (for Linux and MacOS) | `.\env\Scripts\activate.bat` (for Windows)
 We are using poetry to manage dependencies.
 - install poetry
 `pip install poetry`
