@@ -260,7 +260,7 @@ class HybridNN_Recommender(BaseModel):
         all_books["prediction"] = predictions.detach().cpu().numpy()
 
         # Sort the books by their predicted rank
-        all_books = all_books.sort_values(by="prediction", ascending=False)
+        all_books = all_books.sort_values(by=["prediction", self.bookid], ascending=False)
         prediction = all_books[:top_n][self.bookid].tolist()
         if len(prediction) != top_n:
             n_missing = top_n - len(prediction)
