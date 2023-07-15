@@ -6,6 +6,13 @@ stages:
     - src/steps/prepare.py
     outs:
     - data/prepared
+    params:
+    - user_column
+    - book_column
+    - rating_column
+    - prepare.users_file
+    - prepare.book_file
+    - prepare.rate_file
 
   split:
     cmd: python src/steps/split.py data/prepared/ data/split
@@ -14,33 +21,105 @@ stages:
     - src/steps/prepare.py
     outs:
     - data/split
+    params:
+    - filter_treshold
+    - user_column
+    - book_column
+    - rating_column
+    - split.train_size
+    - split.test_size
+    - split.seed
+    - split.stratify_column
 
   train_baseline_model:
-    cmd: python src/steps/train_baseline_model.py data/split/train.csv data/split/test.csv
+    cmd: python src/steps/train_baseline_model.py data/split
     deps:
     - data/split/train.csv
-    - data/split/test.csv
+    - data/split/val.csv
     - src/steps/train_baseline_model.py
     outs:
     - data/models/baseline
+    params:
+    - filter_treshold
+    - user_column
+    - book_column
+    - rating_column
+    - train.method
+    - train.train_file
+    - train.test_file
+    - train.val_file
     
   train_collaborative_filtering:
-    cmd: python src/steps/train_collaborative_filtering.py data/split/train.csv data/split/test.csv
+    cmd: python src/steps/train_collaborative_filtering.py data/split
     deps:
     - data/split/train.csv
-    - data/split/test.csv
+    - data/split/val.csv
     - src/steps/train_collaborative_filtering.py
     outs:
     - data/models/CollaborativeFiltering
+    params:
+    - filter_treshold
+    - user_column
+    - book_column
+    - rating_column
+    - train.train_file
+    - train.test_file
+    - train.val_file
 
   train_factorization:
-    cmd: python src/steps/train_factorization.py data/split/train.csv data/split/test.csv
+    cmd: python src/steps/train_factorization.py data/split
     deps:
     - data/split/train.csv
-    - data/split/test.csv
+    - data/split/val.csv
     - src/steps/train_factorization.py
     outs:
     - data/models/MatrixFactorization
+    params:
+    - filter_treshold
+    - user_column
+    - book_column
+    - rating_column
+    - train.train_file
+    - train.test_file
+    - train.val_file
+
+  train_s_transformer:
+    cmd: python src/steps/train_s_transformer.py data/split
+    deps:
+    - data/split/train.csv
+    - data/split/val.csv
+    - src/steps/train_s_transformer.py
+    outs:
+    - data/models/STransformContentBase
+    params:
+    - filter_treshold
+    - user_column
+    - book_column
+    - rating_column
+    - train.transformer_model
+    - train.train_file
+    - train.test_file
+    - train.val_file
+
+  train_hybrid_nn_model:
+    cmd: python src/steps/train_hybrid_nn_model.py data/split
+    deps:
+    - data/split/train.csv
+    - data/split/val.csv
+    - src/steps/train_hybrid_nn_model.py
+    outs:
+    - data/models/HybridNNmodel
+    params:
+    - filter_treshold
+    - user_column
+    - book_column
+    - rating_column
+    - train.num_epochs
+    - train.patience
+    - train.min_delta
+    - train.train_file
+    - train.test_file
+    - train.val_file
 
   train_content_based:
     cmd: python src/steps/train_content_based_filtering.py data/split/train.csv data/split/test.csv
@@ -50,14 +129,113 @@ stages:
     - src/steps/train_content_based_filtering.py
     outs:
     - data/models/ContentBasedFiltering
+    params:
+    - filter_treshold
+    - user_column
+    - book_column
+    - rating_column
+    - train.train_file
+    - train.test_file
+    - train.val_file
 
-  evaluate:
-    cmd: python src/steps/evaluate.py data/split/test.csv data/prepared/preprocessed.csv
+  evaluate_baseline_model:
+    cmd: python src/steps/evaluate.py data/split/test.csv data/prepared/preprocessed.csv baseline
     deps:
     - data/split/test.csv
     - data/prepared/preprocessed.csv
     - src/steps/evaluate.py
-    - data/models
+    - data/models/baseline
+    params:
+    - filter_treshold
+    - user_column
+    - book_column
+    - rating_column
+    - evaluate.k_list
     metrics:
-    - data/eval/metrics.json:
+    - data/eval/metrics_baseline.json:
+        cache: false
+
+  evaluate_collaborative_filtering:
+    cmd: python src/steps/evaluate.py data/split/test.csv data/prepared/preprocessed.csv CollaborativeFiltering
+    deps:
+    - data/split/test.csv
+    - data/prepared/preprocessed.csv
+    - src/steps/evaluate.py
+    - data/models/CollaborativeFiltering
+    params:
+    - filter_treshold
+    - user_column
+    - book_column
+    - rating_column
+    - evaluate.k_list
+    metrics:
+    - data/eval/metrics_CollaborativeFiltering.json:
+        cache: false
+
+  evaluate_factorization:
+    cmd: python src/steps/evaluate.py data/split/test.csv data/prepared/preprocessed.csv MatrixFactorization
+    deps:
+    - data/split/test.csv
+    - data/prepared/preprocessed.csv
+    - src/steps/evaluate.py
+    - data/models/MatrixFactorization
+    params:
+    - filter_treshold
+    - user_column
+    - book_column
+    - rating_column
+    - evaluate.k_list
+    metrics:
+    - data/eval/metrics_MatrixFactorization.json:
+        cache: false
+
+  evaluate_s_transformer:
+    cmd: python src/steps/evaluate.py data/split/test.csv data/prepared/preprocessed.csv STransformContentBase
+    deps:
+    - data/split/test.csv
+    - data/prepared/preprocessed.csv
+    - src/steps/evaluate.py
+    - data/models/STransformContentBase
+    params:
+    - filter_treshold
+    - user_column
+    - book_column
+    - rating_column
+    - evaluate.k_list
+    metrics:
+    - data/eval/metrics_STransformContentBase.json:
+        cache: false
+
+  evaluate_hybrid_nn_model:
+    cmd: python src/steps/evaluate.py data/split/test.csv data/prepared/preprocessed.csv HybridNNmodel
+    deps:
+    - data/split/test.csv
+    - data/prepared/preprocessed.csv
+    - src/steps/evaluate.py
+    - data/models/HybridNNmodel
+    params:
+    - filter_treshold
+    - user_column
+    - book_column
+    - rating_column
+    - evaluate.k_list
+    metrics:
+    - data/eval/metrics_HybridNNmodel.json:
+        cache: false
+
+  evaluate_content_based:
+    cmd: python src/steps/evaluate.py data/split/test.csv data/prepared/preprocessed.csv ContentBasedFiltering
+    deps:
+    - data/split/test.csv
+    - data/prepared/preprocessed.csv
+    - src/steps/evaluate.py
+    - data/models/ContentBasedFiltering
+    params:
+    - filter_treshold
+    - user_column
+    - book_column
+    - rating_column
+    - evaluate.k_list
+    metrics:
+    - data/eval/metrics_ContentBasedFiltering.json:
         cache: false

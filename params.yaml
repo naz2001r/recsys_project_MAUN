@@ -1,6 +1,7 @@
 filter_treshold: 10
 user_column: User-ID
 book_column: ISBN
+rating_column: Book-Rating
 
 prepare:
   users_file: BX-Users.csv
@@ -8,13 +9,20 @@ prepare:
   rate_file: BX-Book-Ratings.csv
 
 split:
-  train_size: 0.70
-  test_size: 0.30
+  train_size: 0.75
+  test_size: 0.10
   seed: 20170428
   stratify_column: ISBN
 
 train:
   method: mean
+  transformer_model: all-MiniLM-L6-v2
+  num_epochs: 100
+  patience: 5
+  min_delta: 0.001
+  train_file: 'train.csv'
+  test_file: 'test.csv'
+  val_file: 'val.csv'
 
 evaluate:
   k_list:

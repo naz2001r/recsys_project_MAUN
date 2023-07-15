@@ -3,10 +3,10 @@ sys.path.append('./src/models/')
 from train_base import TrainStepABC
 
 
-if len(sys.argv) != 3:
+if len(sys.argv) != 2:
     sys.stderr.write('Arguments error. Usage:\n')
     sys.stderr.write(
-        '\tpython3 train.py train_file test_file\n'
+        '\tpython3 train.py split_directory\n'
     )
     sys.exit(1)
 
