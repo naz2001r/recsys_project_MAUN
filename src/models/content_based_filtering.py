@@ -139,7 +139,6 @@ class ContentBasedFiltering(BaseModel):
         if len(user_books) == 0:
             return self.df.nlargest(top_n, 'Avg_Rating')[self.bookid].tolist()
     
-        # tf_vectorizer = TfidfVectorizer(analyzer='word', stop_words='english')
         user_tf_matrix = self.tf_vectorizer.transform(user_data[self.booktitle])
         cosine_similarity_matrix = cosine_similarity(user_tf_matrix, self.tf_matrix)
 
