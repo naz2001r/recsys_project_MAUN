@@ -252,8 +252,6 @@ stages:
     outs:
     - path: data/models/HybridNNmodel
       hash: md5
-      md5: 62ed39a9155230fe52cc175a0f259300.dir
-      size: 164334201
       md5: 9c03db2a599d1d4842cb0c26d2d595d8.dir
       size: 1368523058
       nfiles: 1
