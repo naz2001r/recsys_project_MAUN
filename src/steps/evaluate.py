@@ -38,7 +38,7 @@ model_dump = ''
 if len(sys.argv) == 5:
     model_dump = sys.argv[4]
 else:
-    list_of_files = glob.glob('./data/models/{model_name}/*.pkl', recursive=True)
+    list_of_files = glob.glob(f'./data/models/{model_name}/*.pkl', recursive=True)
     print('Next models will be evaluated:')
     print(list_of_files)
 

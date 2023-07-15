@@ -78,14 +78,15 @@ if __name__=='__main__':
             predicted = predict_with_model(books, loaded_models, 'MatrixFactorization', user, k)
             [print_book(item) for item in predicted]
         elif option == 4:
-            predicted = predict_with_model(books, loaded_models, 'STransformContentBase', user, k)
-            [print_book(item) for item in predicted]
-        elif option == 5:
-            predicted = predict_with_model(books, loaded_models, 'HybridNNmodel', user, k)
-            [print_book(item) for item in predicted]
-        elif option == 6:
             predicted = predict_with_model(books, loaded_models, 'ContentBasedFiltering', user, k)
             [print_book(item) for item in predicted]
+        elif option == 5:
+            predicted = predict_with_model(books, loaded_models, 'STransformContentBase', user, k)
+            [print_book(item) for item in predicted]
+        elif option == 6:
+            predicted = predict_with_model(books, loaded_models, 'HybridNNmodel', user, k)
+            [print_book(item) for item in predicted]
+            
         elif option == 7:
             print('Thanks for using!')
             exit()
