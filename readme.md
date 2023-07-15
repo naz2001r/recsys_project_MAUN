@@ -29,7 +29,7 @@ We are using poetry to manage dependencies.
 
 [DVC documentation](https://dvc.org/doc/start/data-management/data-versioning)
 
-EDA jupyter notebook is in /data/notebooks folder.
+EDA jupyter notebook is in /data/notebooks folder. **Note:** EDA will be available after `dvc pull -v`
 
 **Models developed:**
 - Baseline model
