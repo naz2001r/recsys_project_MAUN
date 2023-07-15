@@ -38,6 +38,10 @@ class TrainStepABC():
             from matrix_factorization import MatrixFactorization
             train_model = MatrixFactorization(filter_treshold=self._filter_treshold)
 
+        elif self._model == 'ContentBasedFiltering':
+            from content_based_filtering import ContentBasedFiltering
+            train_model = ContentBasedFiltering(filter_treshold=self._filter_treshold)
+
         print("Started training. Prepare to takeoff!")
         train_model.train(train_df)
         print("Training finished. Applause for the captain!")

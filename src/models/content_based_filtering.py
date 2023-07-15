@@ -14,9 +14,9 @@ warnings.simplefilter('ignore')
 from tqdm import tqdm
 tqdm.pandas()
 
-class ContenBasedFiltering(BaseModel):
-    """Conten Based Filtering Algorithm"""
-    MODEL_NAME = 'ContenBasedFiltering'
+class ContentBasedFiltering(BaseModel):
+    """Content Based Filtering Algorithm"""
+    MODEL_NAME = 'ContentBasedFiltering'
 
     def __init__(self, 
                  bookid: str = "ISBN", 
@@ -96,8 +96,6 @@ class ContenBasedFiltering(BaseModel):
 
         return similar_books_df
 
-
-
     def train(self, df: pd.DataFrame) -> None:
         """
         Train the Content Based Filtering model using the provided DataFrame.
@@ -106,7 +104,7 @@ class ContenBasedFiltering(BaseModel):
             df (pd.DataFrame): The DataFrame containing the book ratings data.
         """
 
-        print("Training model...")
+        print(f"Training {self.MODEL_NAME} model...")
 
         # Delete books with less than filter_treshold ratings
         print('Data filtering...')
@@ -120,7 +118,7 @@ class ContenBasedFiltering(BaseModel):
         print("Calculate cosine similarity matrix...")
         self.cosine_similarity_matrix = self.create_cosine_matrix(tf_matrix)
 
-        print("Training complete!")
+        print("Training completed!")
 
     def _get_user_recommendations(self, user_id: int, top_n: int = 3) -> list:
         """
@@ -197,6 +195,6 @@ if __name__ == "__main__":
     df = pd.read_csv("data/prepared/preprocessed.csv")
     df_train, df_test = train_test_split(df, test_size=0.2, random_state=42)
 
-    model = ContenBasedFiltering()
-    model.train(df)
+    model = ContentBasedFiltering()
+    model.train(df_train)
     print(model.predict(df_test[model.userid].unique(), top_n=5))
