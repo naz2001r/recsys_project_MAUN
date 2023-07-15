@@ -39,6 +39,14 @@ EDA jupyter notebook is in /data/notebooks folder.
 - Content-base Sentence Transformer recomender
 - Super-duper hybrid NN+Sentence Transformer recommender
 
+**Inference app**
+!NB Pull dvc pipeline first.
+- To run inference app 
+`python -m inference`
+- Follow the instructions. 
+
+![Inference usage example](./img/inference.png)
+
 **Contributors:**
 - Nazarii Drushchak
 - Alexander Vashchuk
