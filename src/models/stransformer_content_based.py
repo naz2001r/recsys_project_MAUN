@@ -52,7 +52,7 @@ class STransformContentBase(BaseModel):
         Args:
             df (pd.DataFrame): The dataframe to train the model on.
         """
-
+        print("Training {self.MODEL_NAME} model...")
         print("Computing book rank...")
         self.rank = df.groupby([self.bookid]).agg({
             self.bookrank: "mean"

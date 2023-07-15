@@ -155,7 +155,7 @@ class ContentBasedFiltering(BaseModel):
         top_books = top_books.drop_duplicates(subset=[self.bookid]).nlargest(top_n, 'Weighted-Similarity')
         return top_books[self.bookid].tolist()
 
-    def predict(self, users: np.array, top_n: int = 3) -> np.array:
+    def predict(self, users: np.array, k: int = 3) -> np.array:
         """
         Generate predictions for the given users.
 
@@ -173,7 +173,7 @@ class ContentBasedFiltering(BaseModel):
             futures = []
             print("Loading executor")
             for user in tqdm(users[:50]):
-                future = executor.submit(self._get_user_recommendations, user, top_n)
+                future = executor.submit(self._get_user_recommendations, user, k)
                 futures.append(future)
             
             print("Collecting results from executor")

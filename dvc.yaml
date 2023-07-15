@@ -83,6 +83,23 @@ stages:
     - train.test_file
     - train.val_file
 
+  train_content_based:
+    cmd: python src/steps/train_content_based_filtering.py data/split
+    deps:
+    - data/split/train.csv
+    - data/split/test.csv
+    - src/steps/train_content_based_filtering.py
+    outs:
+    - data/models/ContentBasedFiltering
+    params:
+    - filter_treshold
+    - user_column
+    - book_column
+    - rating_column
+    - train.train_file
+    - train.test_file
+    - train.val_file
+
   train_s_transformer:
     cmd: python src/steps/train_s_transformer.py data/split
     deps:
@@ -117,23 +134,6 @@ stages:
     - train.num_epochs
     - train.patience
     - train.min_delta
-    - train.train_file
-    - train.test_file
-    - train.val_file
-
-  train_content_based:
-    cmd: python src/steps/train_content_based_filtering.py data/split
-    deps:
-    - data/split/train.csv
-    - data/split/test.csv
-    - src/steps/train_content_based_filtering.py
-    outs:
-    - data/models/ContentBasedFiltering
-    params:
-    - filter_treshold
-    - user_column
-    - book_column
-    - rating_column
     - train.train_file
     - train.test_file
     - train.val_file
@@ -188,6 +188,23 @@ stages:
     metrics:
     - data/eval/metrics_MatrixFactorization.json:
         cache: false
+  
+  evaluate_content_based:
+    cmd: python src/steps/evaluate.py data/split/test.csv data/prepared/preprocessed.csv ContentBasedFiltering
+    deps:
+    - data/split/test.csv
+    - data/prepared/preprocessed.csv
+    - src/steps/evaluate.py
+    - data/models/ContentBasedFiltering
+    params:
+    - filter_treshold
+    - user_column
+    - book_column
+    - rating_column
+    - evaluate.k_list
+    metrics:
+    - data/eval/metrics_ContentBasedFiltering.json:
+        cache: false
 
   evaluate_s_transformer:
     cmd: python src/steps/evaluate.py data/split/test.csv data/prepared/preprocessed.csv STransformContentBase
@@ -221,21 +238,4 @@ stages:
     - evaluate.k_list
     metrics:
     - data/eval/metrics_HybridNNmodel.json:
-        cache: false
-
-  evaluate_content_based:
-    cmd: python src/steps/evaluate.py data/split/test.csv data/prepared/preprocessed.csv ContentBasedFiltering
-    deps:
-    - data/split/test.csv
-    - data/prepared/preprocessed.csv
-    - src/steps/evaluate.py
-    - data/models/ContentBasedFiltering
-    params:
-    - filter_treshold
-    - user_column
-    - book_column
-    - rating_column
-    - evaluate.k_list
-    metrics:
-    - data/eval/metrics_ContentBasedFiltering.json:
         cache: false
