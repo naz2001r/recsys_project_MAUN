@@ -54,6 +54,10 @@ class TrainStepABC():
                                                num_epochs = self._num_epochs,
                                                patience = self._patience,
                                                min_delta = self._min_delta)
+            
+        elif self._model == 'ContentBasedFiltering':
+            from content_based_filtering import ContentBasedFiltering
+            train_model = ContentBasedFiltering(filter_treshold=self._filter_treshold)
 
         print("Started training. Prepare to takeoff!")
         if self._model == 'HybridNN_Recommender':

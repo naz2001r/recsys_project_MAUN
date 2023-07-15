@@ -12,9 +12,10 @@ menu_options = {
     1: 'Predict with baseline model',
     2: 'Predict with collaborative filtering model',
     3: 'Predict with matrix factorization model',
-    4: 'Predict with sentence transformer',
-    5: 'Predict with hybrid nn model',
-    6: 'Exit',
+    4: 'Predict with content based model',
+    5: 'Predict with sentence transformer',
+    6: 'Predict with hybrid nn model',
+    7: 'Exit',
 }
 
 def print_book(item:pd.Series):
@@ -63,7 +64,7 @@ if __name__=='__main__':
             option = int(input('Enter your choice: '))
         except:
             print('Wrong input. Please enter a number ...')
-        if option in [1, 2, 3, 4, 5]:
+        if option in [1, 2, 3, 4, 5, 6]:
             user = int(input('Enter desired userid from file: '))
             k = int(input('Enter desired number of books: '))
 
@@ -83,6 +84,9 @@ if __name__=='__main__':
             predicted = predict_with_model(books, loaded_models, 'HybridNNmodel', user, k)
             [print_book(item) for item in predicted]
         elif option == 6:
+            predicted = predict_with_model(books, loaded_models, 'ContentBasedFiltering', user, k)
+            [print_book(item) for item in predicted]
+        elif option == 7:
             print('Thanks for using!')
             exit()
         else:

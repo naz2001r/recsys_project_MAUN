@@ -254,4 +254,27 @@ stages:
       hash: md5
       md5: 62ed39a9155230fe52cc175a0f259300.dir
       size: 164334201
+      md5: 9c03db2a599d1d4842cb0c26d2d595d8.dir
+      size: 1368523058
+      nfiles: 1
+  train_content_based:
+    cmd: python src/steps/train_content_based_filtering.py data/split/train.csv data/split/test.csv
+    deps:
+    - path: data/split/test.csv
+      hash: md5
+      md5: 7e2891c3d91710ed14cfc68e4fda69ed
+      size: 5511951
+    - path: data/split/train.csv
+      hash: md5
+      md5: b71c932f19ebe080237cb0c5e158cadf
+      size: 12862273
+    - path: src/steps/train_content_based_filtering.py
+      hash: md5
+      md5: 65cc7b16f4e675b32b0948748fd3689d
+      size: 283
+    outs:
+    - path: data/models/ContentBasedFiltering
+      hash: md5
+      md5: 0c1071b43952bd7a3540eabbe07a671a.dir
+      size: 655284
       nfiles: 1

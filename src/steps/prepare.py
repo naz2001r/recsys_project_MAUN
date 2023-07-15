@@ -152,11 +152,6 @@ users['Country'].replace(mapping_dict, inplace=True)
 # If it is region/state, country - take only country
 users['Country'] = users['Country'].str.split(',').str[-1].str.strip()
 
-
-# Replase unknown countries 
-users['Country'].replace(['','01776','02458','19104','23232','30064','85021','87510','alachua','america','austria','autralia','cananda','geermany','italia','united kindgonm','united sates','united staes','united state','united states','us'],
-                           ['other','usa','usa','usa','usa','usa','usa','usa','usa','usa','australia','australia','canada','germany','italy','united kingdom','usa','usa','usa','usa','usa'],inplace=True)
-
 # Remove Nan in Age by fill it with median value based on country
 users['Age'] = users['Age'].fillna(users.groupby('Country')['Age'].transform('median'))
 
