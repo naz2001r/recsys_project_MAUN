@@ -3,13 +3,14 @@
 **Project description:**
 We are building the recommendation system for books. 
 
-Project install steps:
+**Project install steps:**
 - clone repo
 `git clone https://github.com/naz2001r/recsys_project_MAUN.git`
 - create virtual environment
 `conda create --name py311 python=3.11`
 - activate virtual environment 
-`conda activate py311` (conda) | `source env/bin/activate` (for Linux and MacOS) | `.\env\Scripts\activate.bat` (for Windows)
+`conda activate py311` (conda)
+
 We are using poetry to manage dependencies.
 - install poetry
 `pip install poetry`
@@ -30,12 +31,18 @@ We are using poetry to manage dependencies.
 
 EDA jupyter notebook is in /data/notebooks folder.
 
-Models developed:
+**Models developed:**
 - Baseline model
 - Collaborative filtering
 - Content-base filtering
 - Matrix factorization
-- Content-base sentence transformer recomender
-- Super-duper hybrid NN recommender
+- Content-base Sentence Transformer recomender
+- Super-duper hybrid NN+Sentence Transformer recommender
+
+**Contributors:**
+- Nazarii Drushchak
+- Alexander Vashchuk
+- Marianna Kovalova
+- Uliana Zbezhkhovska
 
 For more information reach us via slack
