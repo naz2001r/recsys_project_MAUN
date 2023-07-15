@@ -9,8 +9,11 @@ Project install steps:
 - create virtual environment
 `python -m venv env`
 - activate virtual environment `source env/bin/activate` (for Linux and MacOS) | `.\env\Scripts\activate.bat` (for Windows)
-- install dependecies using pip
-`pip install -r requirements.txt`
+We are using poetry to manage dependencies.
+- install poetry
+`pip install poetry`
+- install dependecies using poetry. It could take some time
+`poetry install`
 - pull needed data using dvc (it can take up to 30 minutes, please be patient, to see the progress we use verbose flag in here)
 `dvc pull -v`
 - reproduce training pipeline (actually sll steps should be skipped, that will mean that you have latest data locally)
