@@ -122,7 +122,7 @@ stages:
     - train.val_file
 
   train_content_based:
-    cmd: python src/steps/train_content_based_filtering.py data/split/train.csv data/split/test.csv
+    cmd: python src/steps/train_content_based_filtering.py data/split
     deps:
     - data/split/train.csv
     - data/split/test.csv

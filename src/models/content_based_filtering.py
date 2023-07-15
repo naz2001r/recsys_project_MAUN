@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 import concurrent
 
+from scipy import sparse
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
@@ -42,8 +43,8 @@ class ContentBasedFiltering(BaseModel):
         self.booktitle = booktitle
         self.filter_treshold = filter_treshold
         self.rank = None
-        self.df = None
-        self.cosine_similarity_matrix  = None
+        self.tf_vectorizer = None
+        self.tf_matrix = None
 
     def create_cosine_matrix(self, tf_matrix: np.ndarray) -> np.ndarray:
         """
@@ -112,11 +113,8 @@ class ContentBasedFiltering(BaseModel):
         self.df = df.drop_duplicates(subset=[self.bookid, self.booktitle]).reset_index(drop = True)
         
         print('TF_IDF vectorization...')
-        tf_vectorizer = TfidfVectorizer(analyzer='word', stop_words='english')
-        tf_matrix = tf_vectorizer.fit_transform(df[self.booktitle])
-
-        print("Calculate cosine similarity matrix...")
-        self.cosine_similarity_matrix = self.create_cosine_matrix(tf_matrix)
+        self.tf_vectorizer = TfidfVectorizer(analyzer='word', stop_words='english')
+        self.tf_matrix = sparse.csr_matrix(self.tf_vectorizer.fit_transform(df[self.booktitle]))
 
         print("Training completed!")
 
@@ -141,12 +139,12 @@ class ContentBasedFiltering(BaseModel):
         if len(user_books) == 0:
             return self.df.nlargest(top_n, 'Avg_Rating')[self.bookid].tolist()
     
-        # Create cosine similarity matrix for user's books
-        user_books_indices = user_data.index.values.tolist()
-        user_cosine_similarity_matrix = self.cosine_similarity_matrix[user_books_indices, :]
-       
+        # tf_vectorizer = TfidfVectorizer(analyzer='word', stop_words='english')
+        user_tf_matrix = self.tf_vectorizer.transform(user_data[self.booktitle])
+        cosine_similarity_matrix = cosine_similarity(user_tf_matrix, self.tf_matrix)
+
         # Create a pairwise DataFrame with user books, all books, and similarity scores
-        similar_books_df = self.get_weighted_similar_books_df(user_data, user_cosine_similarity_matrix)
+        similar_books_df = self.get_weighted_similar_books_df(user_data, cosine_similarity_matrix)
         
         user_books = similar_books_df['User-Book'].unique()
         other_books = similar_books_df['Book'].unique()

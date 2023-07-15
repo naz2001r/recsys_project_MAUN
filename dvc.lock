@@ -10,8 +10,8 @@ stages:
       nfiles: 3
     - path: src/steps/prepare.py
       hash: md5
-      md5: 6be9b5ade623ae30f074e32238d7b651
-      size: 7113
+      md5: d17c9a2cff9c38fdc312ca064ad7524a
+      size: 7387
     params:
       params.yaml:
         book_column: ISBN
@@ -23,8 +23,8 @@ stages:
     outs:
     - path: data/prepared
       hash: md5
-      md5: 55220603c366d03cde8abbb5bb2f83a4.dir
-      size: 51432579
+      md5: 0e3ea59102909e4e2f70861d7906ae1d.dir
+      size: 50893622
       nfiles: 1
   train:
     cmd: python src/steps/train.py data/split/train.csv data/split/test.csv
@@ -256,23 +256,32 @@ stages:
       size: 1368523058
       nfiles: 1
   train_content_based:
-    cmd: python src/steps/train_content_based_filtering.py data/split/train.csv data/split/test.csv
+    cmd: python src/steps/train_content_based_filtering.py data/split
     deps:
     - path: data/split/test.csv
       hash: md5
-      md5: 7e2891c3d91710ed14cfc68e4fda69ed
-      size: 5511951
+      md5: cb533a1d1bfb1a9358af8ee65ed6e674
+      size: 3703270
     - path: data/split/train.csv
       hash: md5
-      md5: b71c932f19ebe080237cb0c5e158cadf
-      size: 12862273
+      md5: 2b84e5e2a067b010fce9361f2f498c13
+      size: 12121071
     - path: src/steps/train_content_based_filtering.py
       hash: md5
-      md5: 65cc7b16f4e675b32b0948748fd3689d
-      size: 283
+      md5: 050c02a4277131ebe97c38a68c037dd8
+      size: 279
+    params:
+      params.yaml:
+        book_column: ISBN
+        filter_treshold: 10
+        rating_column: Book-Rating
+        train.test_file: test.csv
+        train.train_file: train.csv
+        train.val_file: val.csv
+        user_column: User-ID
     outs:
     - path: data/models/ContentBasedFiltering
       hash: md5
-      md5: 0c1071b43952bd7a3540eabbe07a671a.dir
-      size: 655284
+      md5: 797744a347099c4aa5a275938b0bdf34.dir
+      size: 4601796
       nfiles: 1
