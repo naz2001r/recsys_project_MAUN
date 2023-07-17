@@ -22,6 +22,7 @@ class TrainStepABC():
 
     def __read_files(self) -> tuple:
         split_dir = sys.argv[1]
+        print(f'split_dir {split_dir}')
 
         train_df = pd.read_csv(os.path.join(split_dir, self._train_file))
         val_df = pd.read_csv(os.path.join(split_dir, self._val_file))

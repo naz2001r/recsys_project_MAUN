@@ -192,7 +192,7 @@ class HybridNN_Recommender(BaseModel):
         Args:
             df (pd.DataFrame): The dataframe to train the model on.
         """
-        print("Training model...")
+        print("Training {self.MODEL_NAME} model...")
         self.df = df
 
         print("Computing book rank...")
