@@ -45,7 +45,7 @@ class MatrixFactorization(BaseModel):
         """
 
         # Delete books with less than filter_treshold ratings
-        print("Training {self.MODEL_NAME} model...")
+        print(f"Training {self.MODEL_NAME} model...")
         self.popular_books = df[df['Total_No_Of_Users_Rated'] > self.filter_treshold].reset_index(drop = True)
 
         self.rank = df.groupby([self.bookid]).agg({
