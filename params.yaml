@@ -1,4 +1,5 @@
 filter_treshold: 10
+rating_filter: 5
 user_column: User-ID
 book_column: ISBN
 rating_column: Book-Rating
