@@ -256,25 +256,34 @@ stages:
       size: 169561104
       nfiles: 1
   train_content_based:
-    cmd: python src/steps/train_content_based_filtering.py data/split/train.csv data/split/test.csv
+    cmd: python src/steps/train_content_based_filtering.py data/split
     deps:
     - path: data/split/test.csv
       hash: md5
-      md5: 7e2891c3d91710ed14cfc68e4fda69ed
-      size: 5511951
+      md5: 90001a0b431313b908ca08be0088ae5a
+      size: 2676694
     - path: data/split/train.csv
       hash: md5
-      md5: b71c932f19ebe080237cb0c5e158cadf
-      size: 12862273
+      md5: 55b3177d6dfa79e5a969cd0707c8ab0c
+      size: 20238802
     - path: src/steps/train_content_based_filtering.py
       hash: md5
-      md5: 65cc7b16f4e675b32b0948748fd3689d
-      size: 283
+      md5: 050c02a4277131ebe97c38a68c037dd8
+      size: 279
+    params:
+      params.yaml:
+        book_column: ISBN
+        filter_treshold: 10
+        rating_column: Book-Rating
+        train.test_file: test.csv
+        train.train_file: train.csv
+        train.val_file: val.csv
+        user_column: User-ID
     outs:
     - path: data/models/ContentBasedFiltering
       hash: md5
-      md5: 0c1071b43952bd7a3540eabbe07a671a.dir
-      size: 655284
+      md5: 87b65d544b7621257568ac82551189b3.dir
+      size: 5445910
       nfiles: 1
   evaluate_baseline_model:
     cmd: python src/steps/evaluate.py data/split/test.csv data/prepared/preprocessed.csv

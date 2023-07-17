@@ -1,7 +1,7 @@
 ## :blue_book: :book: :orange_book: :neckbeard: Books recommendation project :neckbeard: :orange_book: :book: :blue_book:
 
 **Project description:**
-We are building the recommendation system for books. 
+Recommendation system for books. 
 
 **Project install steps:**
 - clone repo
@@ -18,7 +18,7 @@ We are using poetry to manage dependencies.
 `poetry install`
 - pull needed data using dvc (it can take up to 30 minutes, please be patient, to see the progress we use verbose flag in here)
 `dvc pull -v`
-- reproduce training pipeline (actually sll steps should be skipped, that will mean that you have latest data locally)
+- reproduce training pipeline (actually all steps should be skipped, that will mean that you have latest data locally)
 `dvc repro -v`
 - to run single step of pipeline
 `dvc repro -v -sf STEPNAME`
@@ -45,6 +45,7 @@ EDA jupyter notebook is in /data/notebooks folder. **Note:** EDA will be availab
 `python -m inference`
 - Follow the instructions. 
 
+Inference usage example:
 ![Inference usage example](./img/inference.png)
 
 **Contributors:**

@@ -19,12 +19,13 @@ menu_options = {
 }
 
 def print_book(item:pd.Series):
-    print('========================')
+    print('='*70)
     print(f'ISBN:                {item["ISBN"].values[0]}')
     print(f'Book-Title:          {item["Book-Title"].values[0]}')
     print(f'Book-Author:         {item["Book-Author"].values[0]}')
     print(f'Year-Of-Publication: {item["Year-Of-Publication"].values[0]}')
     print(f'Publisher:           {item["Publisher"].values[0]}')
+    print(f'Book Cover Image:    {item["Image-URL-L"].values[0]}')
 
 def get_books_names(books: pd.DataFrame, predictions: list) -> list:
     return [books[books['ISBN'] == bookid] for bookid in predictions]
@@ -46,7 +47,7 @@ def predict_with_model(books: pd.DataFrame, loaded_models: dict, model_name: str
     if not model_name in loaded_models.keys():
         model_file = get_model_file(model_name)
         if model_file:
-            print(model_file)
+            print(f'Prediction will be done by {model_file.split("/")[-1].split("_")[0]} model')
             loaded_models[model_name] = BaseModel('base').load(model_file)
     
     if loaded_models[model_name]:
