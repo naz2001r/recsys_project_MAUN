@@ -171,7 +171,7 @@ class ContentBasedFiltering(BaseModel):
         with ThreadPoolExecutor() as executor:
             futures = []
             print("Loading executor")
-            for user in tqdm(users[:50]):
+            for user in tqdm(users):
                 future = executor.submit(self._get_user_recommendations, user, k)
                 futures.append(future)
             

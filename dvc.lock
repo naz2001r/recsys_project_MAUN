@@ -260,16 +260,16 @@ stages:
     deps:
     - path: data/split/test.csv
       hash: md5
-      md5: 90001a0b431313b908ca08be0088ae5a
-      size: 2676694
+      md5: d2ca65c19a28331032ee7f6ee54e6f1b
+      size: 1840883
     - path: data/split/train.csv
       hash: md5
-      md5: 55b3177d6dfa79e5a969cd0707c8ab0c
-      size: 20238802
+      md5: 00ffb1139832dd3af8419068aff0e7a3
+      size: 13922831
     - path: src/steps/train_content_based_filtering.py
       hash: md5
-      md5: 050c02a4277131ebe97c38a68c037dd8
-      size: 279
+      md5: 17f9b122fbccd3b6080232c5aa37129e
+      size: 293
     params:
       params.yaml:
         book_column: ISBN
@@ -282,8 +282,8 @@ stages:
     outs:
     - path: data/models/ContentBasedFiltering
       hash: md5
-      md5: 87b65d544b7621257568ac82551189b3.dir
-      size: 5445910
+      md5: 65e9f453d77df8c8fc920798e3055ab5.dir
+      size: 5102861
       nfiles: 1
   evaluate_baseline_model:
     cmd: python src/steps/evaluate.py data/split/test.csv data/prepared/preprocessed.csv
@@ -464,4 +464,40 @@ stages:
     - path: data/eval/metrics_CollaborativeFiltering.json
       hash: md5
       md5: ac8e653897d0acda0aebc72a093d97c1
+      size: 490
+  evaluate_content_based:
+    cmd: python src/steps/evaluate.py data/split/test.csv data/prepared/preprocessed.csv
+      ContentBasedFiltering
+    deps:
+    - path: data/models/ContentBasedFiltering
+      hash: md5
+      md5: 65e9f453d77df8c8fc920798e3055ab5.dir
+      size: 5102861
+      nfiles: 1
+    - path: data/prepared/preprocessed.csv
+      hash: md5
+      md5: a40b5b784490cfce142b02de952d6467
+      size: 51277465
+    - path: data/split/test.csv
+      hash: md5
+      md5: d2ca65c19a28331032ee7f6ee54e6f1b
+      size: 1840883
+    - path: src/steps/evaluate.py
+      hash: md5
+      md5: 03085bf35b6cd12075ed5fa5c2909525
+      size: 2265
+    params:
+      params.yaml:
+        book_column: ISBN
+        evaluate.k_list:
+        - 10
+        - 20
+        - 100
+        filter_treshold: 10
+        rating_column: Book-Rating
+        user_column: User-ID
+    outs:
+    - path: data/eval/metrics_ContentBasedFiltering.json
+      hash: md5
+      md5: c9667529a44d314794c058a243fa055e
       size: 490
