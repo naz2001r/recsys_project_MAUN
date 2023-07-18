@@ -166,16 +166,16 @@ stages:
     deps:
     - path: data/split/train.csv
       hash: md5
-      md5: 00ffb1139832dd3af8419068aff0e7a3
-      size: 13922831
+      md5: 0898d8e6b998f37ed59e7c607e5eb93b
+      size: 13387118
     - path: data/split/val.csv
       hash: md5
-      md5: b633a7229571d145f64753121cd3eba0
-      size: 2653068
+      md5: 30f8e4d2ff516d945aae5a46107effd6
+      size: 2548729
     - path: src/steps/train_factorization.py
       hash: md5
-      md5: 79608b660670120cfb681a1092e4b7bc
-      size: 289
+      md5: 526a76555789a798d13af3cbf3970387
+      size: 276
     params:
       params.yaml:
         book_column: ISBN
@@ -188,8 +188,8 @@ stages:
     outs:
     - path: data/models/MatrixFactorization
       hash: md5
-      md5: 714d7bb0aebad3470d69257c521c0fab.dir
-      size: 1562508189
+      md5: 2498e4e528d44e3e08d8862bab957302.dir
+      size: 1521219272
       nfiles: 1
   train_s_transformer:
     cmd: python src/steps/train_s_transformer.py data/split
@@ -501,3 +501,69 @@ stages:
       hash: md5
       md5: c9667529a44d314794c058a243fa055e
       size: 490
+  train_hybrid_MF_stransformer:
+    cmd: python src/steps/train_hybrid_MF_stransformer.py data/split
+    deps:
+    - path: data/split/test.csv
+      hash: md5
+      md5: 116c942717372b83a5e7fe992a4d8994
+      size: 1769263
+    - path: data/split/train.csv
+      hash: md5
+      md5: 0898d8e6b998f37ed59e7c607e5eb93b
+      size: 13387118
+    - path: src/steps/train_hybrid_MF_stransformer.py
+      hash: md5
+      md5: fe94620b7e6b98f3d6446f0c92f5e252
+      size: 279
+    params:
+      params.yaml:
+        book_column: ISBN
+        filter_treshold: 10
+        rating_column: Book-Rating
+        train.test_file: test.csv
+        train.train_file: train.csv
+        train.val_file: val.csv
+        user_column: User-ID
+    outs:
+    - path: data/models/Hybrid_MF_STransformer
+      hash: md5
+      md5: 4bb9bdf297c6ac495db1d5ee1be874de.dir
+      size: 1629517426
+      nfiles: 1
+  evaluate_hybrid_MF_stransformer:
+    cmd: python src/steps/evaluate.py data/split/test.csv data/prepared/preprocessed.csv
+      Hybrid_MF_STransformer
+    deps:
+    - path: data/models/Hybrid_MF_STransformer
+      hash: md5
+      md5: d0d3f71ec9db5a1ca66b075e2061b6e9.dir
+      size: 1629517426
+      nfiles: 1
+    - path: data/prepared/preprocessed.csv
+      hash: md5
+      md5: a40b5b784490cfce142b02de952d6467
+      size: 51277465
+    - path: data/split/test.csv
+      hash: md5
+      md5: 116c942717372b83a5e7fe992a4d8994
+      size: 1769263
+    - path: src/steps/evaluate.py
+      hash: md5
+      md5: 0afed204fca82e45029aa233b5effdc2
+      size: 2197
+    params:
+      params.yaml:
+        book_column: ISBN
+        evaluate.k_list:
+        - 10
+        - 20
+        - 100
+        filter_treshold: 10
+        rating_column: Book-Rating
+        user_column: User-ID
+    outs:
+    - path: data/eval/metrics_Hybrid_MF_STransformer.json
+      hash: md5
+      md5: adefcd23e586d6ce0b12c5d7a55085eb
+      size: 492

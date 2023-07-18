@@ -60,6 +60,10 @@ class TrainStepABC():
             from content_based_filtering import ContentBasedFiltering
             train_model = ContentBasedFiltering(filter_treshold=self._filter_treshold)
 
+        elif self._model == 'Hybrid_MF_STransformer':
+            from hybrid_MF_stransformer import Hybrid_MF_STransformer
+            train_model = Hybrid_MF_STransformer(transformer_model = self._transformer_model,
+                                                 filter_treshold=self._filter_treshold)
         print("Started training. Prepare to takeoff!")
         if self._model == 'HybridNN_Recommender':
             train_model.train(train_df, val_df)

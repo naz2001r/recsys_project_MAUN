@@ -45,7 +45,7 @@ class CollaborativeFiltering(BaseModel):
         # Delete books with less than filter_treshold ratings
         df = df.groupby(self.bookid).filter(lambda x: len(x) >= self.filter_treshold)
 
-        print("Training {self.MODEL_NAME} model...")
+        print(f"Training {self.MODEL_NAME} model...")
         self.rank = df.groupby([self.bookid]).agg({
             self.bookrank: "mean"
         }).reset_index()

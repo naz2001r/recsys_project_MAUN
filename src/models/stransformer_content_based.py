@@ -52,7 +52,7 @@ class STransformContentBase(BaseModel):
         Args:
             df (pd.DataFrame): The dataframe to train the model on.
         """
-        print("Training {self.MODEL_NAME} model...")
+        print(f"Training {self.MODEL_NAME} model...")
         print("Computing book rank...")
         self.rank = df.groupby([self.bookid]).agg({
             self.bookrank: "mean"
@@ -89,7 +89,7 @@ class STransformContentBase(BaseModel):
             book_idx = self.books_df[self.books_df[self.bookid] == book_id].index[0]
             book_embedding = self.embeddings_db[book_idx]
             cosine_scores = util.pytorch_cos_sim(book_embedding, self.embeddings_db)[0]
-            top_results = torch.topk(cosine_scores, k=int(0.7*cosine_scores.shape[0]))
+            top_results = torch.topk(cosine_scores, k=int(0.8*cosine_scores.shape[0]))
             for score, idx in zip(top_results[0], top_results[1]):
                 book = self.books_df.iloc[idx.item()][self.bookid]
                 user_predictions.append({self.bookid: book, 'predictions': score.item()})
