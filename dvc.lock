@@ -10,8 +10,8 @@ stages:
       nfiles: 3
     - path: src/steps/prepare.py
       hash: md5
-      md5: ae8337a64e541341dab1568586365e02
-      size: 7554
+      md5: caee25d10a33742fa8d5da4273339625
+      size: 8997
     params:
       params.yaml:
         book_column: ISBN
@@ -21,11 +21,14 @@ stages:
         rating_column: Book-Rating
         user_column: User-ID
     outs:
-    - path: data/prepared
+    - path: data/prepared/bx-books-preprocessed.csv
       hash: md5
-      md5: 55eb300a03addcbc599d69321217fc57.dir
-      size: 51277465
-      nfiles: 1
+      md5: c02a21690cc6ab9338c2179ac01d34cb
+      size: 36464541
+    - path: data/prepared/preprocessed.csv
+      hash: md5
+      md5: cda7ce71a9b9403296fb5ec0160f4958
+      size: 74964758
   train:
     cmd: python src/steps/train.py data/split/train.csv data/split/test.csv
     deps:
@@ -75,15 +78,14 @@ stages:
   split:
     cmd: python src/steps/split.py data/prepared/ data/split
     deps:
-    - path: data/prepared
+    - path: data/prepared/preprocessed.csv
       hash: md5
-      md5: 55eb300a03addcbc599d69321217fc57.dir
-      size: 51277465
-      nfiles: 1
+      md5: cda7ce71a9b9403296fb5ec0160f4958
+      size: 74964758
     - path: src/steps/prepare.py
       hash: md5
-      md5: ae8337a64e541341dab1568586365e02
-      size: 7554
+      md5: caee25d10a33742fa8d5da4273339625
+      size: 8997
     params:
       params.yaml:
         book_column: ISBN
@@ -98,8 +100,8 @@ stages:
     outs:
     - path: data/split
       hash: md5
-      md5: a83e6a04410b6b78903a3cdf468fe0c1.dir
-      size: 17705110
+      md5: 68956cb82532e19bdf0bead72ead2d5e.dir
+      size: 30015576
       nfiles: 3
   train_baseline_model:
     cmd: python src/steps/train_baseline_model.py data/split
@@ -167,12 +169,12 @@ stages:
     deps:
     - path: data/split/train.csv
       hash: md5
-      md5: 00ffb1139832dd3af8419068aff0e7a3
-      size: 13922831
+      md5: cad6528e7f5d1cac210957e8308d2b18
+      size: 22601063
     - path: data/split/val.csv
       hash: md5
-      md5: b633a7229571d145f64753121cd3eba0
-      size: 2653068
+      md5: 50ad7f122d5cc7ce3fee932f084492d9
+      size: 4415868
     - path: src/steps/train_factorization.py
       hash: md5
       md5: 79608b660670120cfb681a1092e4b7bc
@@ -189,20 +191,20 @@ stages:
     outs:
     - path: data/models/MatrixFactorization
       hash: md5
-      md5: 714d7bb0aebad3470d69257c521c0fab.dir
-      size: 1562508189
+      md5: cfc70d4d21dca35e2f0f8df8ed728d78.dir
+      size: 1773847903
       nfiles: 1
   train_s_transformer:
     cmd: python src/steps/train_s_transformer.py data/split
     deps:
     - path: data/split/train.csv
       hash: md5
-      md5: 0898d8e6b998f37ed59e7c607e5eb93b
-      size: 13387118
+      md5: cad6528e7f5d1cac210957e8308d2b18
+      size: 22601063
     - path: data/split/val.csv
       hash: md5
-      md5: 30f8e4d2ff516d945aae5a46107effd6
-      size: 2548729
+      md5: 50ad7f122d5cc7ce3fee932f084492d9
+      size: 4415868
     - path: src/steps/train_s_transformer.py
       hash: md5
       md5: 7877b0f8c7efc57093733ac31df1c6f4
@@ -214,14 +216,14 @@ stages:
         rating_column: Book-Rating
         train.test_file: test.csv
         train.train_file: train.csv
-        train.transformer_model: all-MiniLM-L6-v2
+        train.transformer_model: all-mpnet-base-v2
         train.val_file: val.csv
         user_column: User-ID
     outs:
     - path: data/models/STransformContentBase
       hash: md5
-      md5: ba7632dc802731dbb459963fd26e2fe1.dir
-      size: 108818353
+      md5: bcb020afd5c7df25cdd6ac0a77a6649b.dir
+      size: 467965207
       nfiles: 1
   train_hybrid_nn_model:
     cmd: python src/steps/train_hybrid_nn_model.py data/split
@@ -328,21 +330,21 @@ stages:
     deps:
     - path: data/models/STransformContentBase
       hash: md5
-      md5: aaab6464095a3a06b8ab1e7998989320.dir
-      size: 109164517
+      md5: bcb020afd5c7df25cdd6ac0a77a6649b.dir
+      size: 467965207
       nfiles: 1
     - path: data/prepared/preprocessed.csv
       hash: md5
-      md5: a40b5b784490cfce142b02de952d6467
-      size: 51277465
+      md5: cda7ce71a9b9403296fb5ec0160f4958
+      size: 74964758
     - path: data/split/test.csv
       hash: md5
-      md5: d2ca65c19a28331032ee7f6ee54e6f1b
-      size: 1840883
+      md5: 09925537a7642a74c00109c3763b1363
+      size: 2998645
     - path: src/steps/evaluate.py
       hash: md5
-      md5: 03085bf35b6cd12075ed5fa5c2909525
-      size: 2265
+      md5: 8d40ac4d577e25c3f54359d06b0f3e3b
+      size: 2307
     params:
       params.yaml:
         book_column: ISBN
@@ -356,8 +358,8 @@ stages:
     outs:
     - path: data/eval/metrics_STransformContentBase.json
       hash: md5
-      md5: e6e2e60e4a8f30b0f7251fd27defcde7
-      size: 487
+      md5: b4c0485474c10217f055cb4a66b75bdd
+      size: 484
   evaluate_hybrid_nn_model:
     cmd: python src/steps/evaluate.py data/split/test.csv data/prepared/preprocessed.csv
       HybridNNmodel
@@ -400,21 +402,21 @@ stages:
     deps:
     - path: data/models/MatrixFactorization
       hash: md5
-      md5: 714d7bb0aebad3470d69257c521c0fab.dir
-      size: 1562508189
+      md5: cfc70d4d21dca35e2f0f8df8ed728d78.dir
+      size: 1773847903
       nfiles: 1
     - path: data/prepared/preprocessed.csv
       hash: md5
-      md5: a40b5b784490cfce142b02de952d6467
-      size: 51277465
+      md5: cda7ce71a9b9403296fb5ec0160f4958
+      size: 74964758
     - path: data/split/test.csv
       hash: md5
-      md5: d2ca65c19a28331032ee7f6ee54e6f1b
-      size: 1840883
+      md5: 09925537a7642a74c00109c3763b1363
+      size: 2998645
     - path: src/steps/evaluate.py
       hash: md5
-      md5: 03085bf35b6cd12075ed5fa5c2909525
-      size: 2265
+      md5: 8d40ac4d577e25c3f54359d06b0f3e3b
+      size: 2307
     params:
       params.yaml:
         book_column: ISBN
@@ -428,8 +430,8 @@ stages:
     outs:
     - path: data/eval/metrics_MatrixFactorization.json
       hash: md5
-      md5: 1c47b7485c098276d21a4d25059de8e7
-      size: 478
+      md5: 661f3c349ac20c4e48b3a884ca73390a
+      size: 482
   evaluate_collaborative_filtering:
     cmd: python src/steps/evaluate.py data/split/test.csv data/prepared/preprocessed.csv
       CollaborativeFiltering
