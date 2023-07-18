@@ -3,6 +3,8 @@ import os
 import sys
 import numpy as np
 import pandas as pd
+from tqdm import tqdm
+tqdm.pandas()
 
 from constants import mapping_dict
 pd.set_option('mode.chained_assignment', None)
@@ -105,12 +107,43 @@ books['Book-Author'].fillna('other',inplace=True)
 # preprocess titles
 books['Book-Title'] = books['Book-Title'].apply(preprocess_title)
 
+# deduplication
+books["Book-Title-lower"] = books["Book-Title"].str.lower()
+books["Book-Author-lower"] = books["Book-Title"].str.lower()
+
+books = books.groupby(by=["Book-Title-lower","Book-Author-lower"]).agg(lambda x: list(x))
+books = books.reset_index()
+
+book_isbn_mapper = {}
+
+def build_map(value):
+    if type(value) == list:
+        for i in range(1, len(value)):
+            book_isbn_mapper[value[i]] = value[0] 
+            
+def take_first(value):
+    if type(value) == list:
+        return value[0]
+    
+    return value
+
+books['ISBN'].progress_apply(lambda x: build_map(x))
+books['ISBN'] = books['ISBN'].progress_apply(lambda x: take_first(x))
+books['Book-Title'] = books['Book-Title'].progress_apply(lambda x: take_first(x))
+books['Book-Author'] = books['Book-Author'].progress_apply(lambda x: take_first(x))
+books['Year-Of-Publication'] = books['Year-Of-Publication'].progress_apply(lambda x: take_first(x))
+books['Publisher'] = books['Publisher'].progress_apply(lambda x: take_first(x))
+books['Image-URL-L'] = books['Image-URL-L'].progress_apply(lambda x: take_first(x))
+books.drop(columns=["Book-Title-lower","Book-Author-lower"], inplace=True)
+
 print('End preprocessing books dataset\n')
 
 print('Start preprocessing ratings dataset')
 # Work with ratings dataset
 
-#  Ratings dataset should have books only which exist in our books dataset and should have ratings from users which exist in users dataset. 
+#  Ratings dataset should have books only which exist in our books dataset and should have ratings from users which exist in users dataset.
+ratings['ISBN'] = ratings['ISBN'].progress_apply(lambda x: book_isbn_mapper[str(x)] if str(x) in book_isbn_mapper.keys() else x) 
+
 ratings_new = ratings[ratings.ISBN.isin(books.ISBN)]
 ratings_new = ratings_new[ratings_new['User-ID'].isin(users['User-ID'])]
 
@@ -165,3 +198,4 @@ dataset = users.copy()
 dataset = pd.merge(dataset,ratings_explicit,on='User-ID')
 dataset = pd.merge(dataset,books,on='ISBN')
 dataset.to_csv(os.path.join(output_dir, 'preprocessed.csv'),index=False)
+books.to_csv(os.path.join(output_dir, 'bx-books-preprocessed.csv'),index=False)

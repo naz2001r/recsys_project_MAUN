@@ -5,7 +5,8 @@ stages:
     - data/raw
     - src/steps/prepare.py
     outs:
-    - data/prepared
+    - data/prepared/preprocessed.csv
+    - data/prepared/bx-books-preprocessed.csv
     params:
     - user_column
     - book_column
@@ -17,7 +18,7 @@ stages:
   split:
     cmd: python src/steps/split.py data/prepared/ data/split
     deps:
-    - data/prepared
+    - data/prepared/preprocessed.csv
     - src/steps/prepare.py
     outs:
     - data/split
