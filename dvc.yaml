@@ -23,6 +23,7 @@ stages:
     - data/split
     params:
     - filter_treshold
+    - user_ratings_filter
     - user_column
     - book_column
     - rating_column
