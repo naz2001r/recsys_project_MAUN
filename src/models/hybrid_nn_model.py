@@ -182,8 +182,8 @@ class HybridNN_Recommender(BaseModel):
                 if counter >= self.patience:
                     print('Early stopping!\n')
                     return model
-
-        return model
+        
+        return model.to(device=torch.device('cpu'))
 
     def train(self, df: pd.DataFrame, val_df: pd.DataFrame) -> None:
         """
@@ -192,7 +192,7 @@ class HybridNN_Recommender(BaseModel):
         Args:
             df (pd.DataFrame): The dataframe to train the model on.
         """
-        print("Training {self.MODEL_NAME} model...")
+        print(f"Training {self.MODEL_NAME} model...")
         self.df = df
 
         print("Computing book rank...")

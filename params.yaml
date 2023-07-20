@@ -1,4 +1,5 @@
 filter_treshold: 10
+rating_filter: 5
 user_column: User-ID
 book_column: ISBN
 rating_column: Book-Rating
@@ -16,9 +17,9 @@ split:
 
 train:
   method: mean
-  transformer_model: all-MiniLM-L6-v2
+  transformer_model: all-mpnet-base-v2
   num_epochs: 100
-  patience: 5
+  patience: 3
   min_delta: 0.001
   train_file: 'train.csv'
   test_file: 'test.csv'
