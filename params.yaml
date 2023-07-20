@@ -19,6 +19,7 @@ split:
 train:
   method: mean
   transformer_model: all-mpnet-base-v2
+  nn_transformer_model: all-MiniLM-L6-v2
   num_epochs: 100
   patience: 3
   min_delta: 0.001

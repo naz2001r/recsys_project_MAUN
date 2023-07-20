@@ -13,6 +13,7 @@ class TrainStepABC():
         self._method = params['train']['method']
         self._filter_treshold = params['filter_treshold']
         self._transformer_model = params['train']['transformer_model']
+        self._nn_transformer_model = params['train']['nn_transformer_model']
         self._num_epochs = params['train']['num_epochs']
         self._patience = params['train']['patience']
         self._min_delta = params['train']['min_delta']
@@ -51,7 +52,7 @@ class TrainStepABC():
 
         elif self._model == 'HybridNN_Recommender':
             from hybrid_nn_model import HybridNN_Recommender
-            train_model = HybridNN_Recommender(transformer_model = self._transformer_model, 
+            train_model = HybridNN_Recommender(transformer_model = self._nn_transformer_model, 
                                                num_epochs = self._num_epochs,
                                                patience = self._patience,
                                                min_delta = self._min_delta)
