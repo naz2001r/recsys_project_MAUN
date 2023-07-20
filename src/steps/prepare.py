@@ -66,8 +66,8 @@ def preprocess_title(title: str) -> str:
 print('Start preprocessing books dataset')
 # First work with books dataset
 
-# Delete unseful columns Image-URL-S, Image-URL-M and Image-URL-L.
-books = books[['ISBN', 'Book-Title', 'Book-Author', 'Year-Of-Publication', 'Publisher']]
+# Delete unuseful columns Image-URL-S and Image-URL-M.
+books = books[['ISBN', 'Book-Title', 'Book-Author', 'Year-Of-Publication', 'Publisher', 'Image-URL-L']]
 # Let's discover the year of publication. In our data we have strange years like '0', 'DK Publishing Inc', 'Gallimard' 
 # and as dataset was publised in 2014 we should also remove years like 2020', '2021', '2024', '2026', '2030', '2037', '2038', '2050'
 # investigating the rows having 'DK Publishing Inc' as yearOfPublication

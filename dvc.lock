@@ -89,6 +89,7 @@ stages:
         book_column: ISBN
         filter_treshold: 10
         rating_column: Book-Rating
+        rating_filter: 5
         split.seed: 20170428
         split.stratify_column: ISBN
         split.test_size: 0.1
@@ -97,8 +98,8 @@ stages:
     outs:
     - path: data/split
       hash: md5
-      md5: 152e745406568a4552108d67e1d7c8e0.dir
-      size: 18416782
+      md5: a83e6a04410b6b78903a3cdf468fe0c1.dir
+      size: 17705110
       nfiles: 3
   train_baseline_model:
     cmd: python src/steps/train_baseline_model.py data/split
@@ -196,12 +197,12 @@ stages:
     deps:
     - path: data/split/train.csv
       hash: md5
-      md5: 00ffb1139832dd3af8419068aff0e7a3
-      size: 13922831
+      md5: 0898d8e6b998f37ed59e7c607e5eb93b
+      size: 13387118
     - path: data/split/val.csv
       hash: md5
-      md5: b633a7229571d145f64753121cd3eba0
-      size: 2653068
+      md5: 30f8e4d2ff516d945aae5a46107effd6
+      size: 2548729
     - path: src/steps/train_s_transformer.py
       hash: md5
       md5: 7877b0f8c7efc57093733ac31df1c6f4
