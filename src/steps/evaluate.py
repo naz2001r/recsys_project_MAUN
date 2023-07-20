@@ -40,7 +40,7 @@ if len(sys.argv) == 5:
 else:
     list_of_files = glob.glob(f'./data/models/{model_name}/*.pkl', recursive=True)
     print('Next models will be evaluated:')
-    print(list_of_files)
+    print([f.split("/")[-1].split("_")[0] for f in list_of_files])
 
 model_dump = list_of_files[0]
 

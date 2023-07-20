@@ -23,16 +23,24 @@ seed = params['split']['seed']
 stratify_column = params['split']['stratify_column']
 filter_treshold = params['filter_treshold']
 user_ratings_filter = params['user_ratings_filter']
+rating_filter = params['rating_filter']
 book_column = params['book_column']
 user_column = params['user_column']
+rating_column = params['rating_column']
 
 os.makedirs(output_dir, exist_ok=True)
 
 input_folder = sys.argv[1]
 dataset = pd.read_csv(os.path.join(input_folder, 'preprocessed.csv'))
 
+# Get all users that have more then {user_ratings_filter} reviews
 dataset = dataset.groupby(user_column).filter(lambda x: len(x) > user_ratings_filter)
+
+# Get all books that have more then {filter_treshold} reviews
 dataset = dataset.groupby(book_column).filter(lambda x: len(x) >= filter_treshold)
+
+# Get all records that have rating more than {rating_filter}
+dataset = dataset[dataset[rating_column] >= rating_filter]
 
 train, test = train_test_split(
     dataset.index,

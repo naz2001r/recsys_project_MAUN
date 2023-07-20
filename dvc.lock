@@ -89,6 +89,7 @@ stages:
         book_column: ISBN
         filter_treshold: 10
         rating_column: Book-Rating
+        rating_filter: 5
         split.seed: 20170428
         split.stratify_column: ISBN
         split.test_size: 0.1
@@ -311,25 +312,25 @@ stages:
       params.yaml:
         book_column: ISBN
         evaluate.k_list:
+        - 5
         - 10
         - 20
-        - 100
         filter_treshold: 10
         rating_column: Book-Rating
         user_column: User-ID
     outs:
     - path: data/eval/metrics_baseline.json
       hash: md5
-      md5: 6f8328d3dfe0cb3eb98db1bf1a2b8682
-      size: 478
+      md5: 8e4deda291301056d0191e370e83cd82
+      size: 473
   evaluate_s_transformer:
     cmd: python src/steps/evaluate.py data/split/test.csv data/prepared/preprocessed.csv
       STransformContentBase
     deps:
     - path: data/models/STransformContentBase
       hash: md5
-      md5: aaab6464095a3a06b8ab1e7998989320.dir
-      size: 109164517
+      md5: 013aa3a804c0179f450db71ae32e64e0.dir
+      size: 109164227
       nfiles: 1
     - path: data/prepared/preprocessed.csv
       hash: md5
@@ -347,17 +348,17 @@ stages:
       params.yaml:
         book_column: ISBN
         evaluate.k_list:
+        - 5
         - 10
         - 20
-        - 100
         filter_treshold: 10
         rating_column: Book-Rating
         user_column: User-ID
     outs:
     - path: data/eval/metrics_STransformContentBase.json
       hash: md5
-      md5: e6e2e60e4a8f30b0f7251fd27defcde7
-      size: 487
+      md5: 0647332e1cc499c37b5d9b1c19333b89
+      size: 482
   evaluate_hybrid_nn_model:
     cmd: python src/steps/evaluate.py data/split/test.csv data/prepared/preprocessed.csv
       HybridNNmodel
@@ -419,9 +420,9 @@ stages:
       params.yaml:
         book_column: ISBN
         evaluate.k_list:
+        - 5
         - 10
         - 20
-        - 100
         filter_treshold: 10
         rating_column: Book-Rating
         user_column: User-ID
@@ -455,9 +456,9 @@ stages:
       params.yaml:
         book_column: ISBN
         evaluate.k_list:
+        - 5
         - 10
         - 20
-        - 100
         filter_treshold: 10
         rating_column: Book-Rating
         user_column: User-ID
@@ -491,14 +492,80 @@ stages:
       params.yaml:
         book_column: ISBN
         evaluate.k_list:
+        - 5
         - 10
         - 20
-        - 100
         filter_treshold: 10
         rating_column: Book-Rating
         user_column: User-ID
     outs:
     - path: data/eval/metrics_ContentBasedFiltering.json
       hash: md5
-      md5: c9667529a44d314794c058a243fa055e
-      size: 490
+      md5: df7bd47ac6bb7c55aafce765da7ba5c5
+      size: 486
+  train_hybrid_MF_stransformer:
+    cmd: python src/steps/train_hybrid_MF_stransformer.py data/split
+    deps:
+    - path: data/split/test.csv
+      hash: md5
+      md5: d2ca65c19a28331032ee7f6ee54e6f1b
+      size: 1840883
+    - path: data/split/train.csv
+      hash: md5
+      md5: 00ffb1139832dd3af8419068aff0e7a3
+      size: 13922831
+    - path: src/steps/train_hybrid_MF_stransformer.py
+      hash: md5
+      md5: d0973cf704872d269de1d631dc157b98
+      size: 292
+    params:
+      params.yaml:
+        book_column: ISBN
+        filter_treshold: 10
+        rating_column: Book-Rating
+        train.test_file: test.csv
+        train.train_file: train.csv
+        train.val_file: val.csv
+        user_column: User-ID
+    outs:
+    - path: data/models/Hybrid_MF_STransformer
+      hash: md5
+      md5: e621cad6812180f39cdacf74769002c6.dir
+      size: 1671148553
+      nfiles: 1
+  evaluate_hybrid_MF_stransformer:
+    cmd: python src/steps/evaluate.py data/split/test.csv data/prepared/preprocessed.csv
+      Hybrid_MF_STransformer
+    deps:
+    - path: data/models/Hybrid_MF_STransformer
+      hash: md5
+      md5: e621cad6812180f39cdacf74769002c6.dir
+      size: 1671148553
+      nfiles: 1
+    - path: data/prepared/preprocessed.csv
+      hash: md5
+      md5: a40b5b784490cfce142b02de952d6467
+      size: 51277465
+    - path: data/split/test.csv
+      hash: md5
+      md5: d2ca65c19a28331032ee7f6ee54e6f1b
+      size: 1840883
+    - path: src/steps/evaluate.py
+      hash: md5
+      md5: 03085bf35b6cd12075ed5fa5c2909525
+      size: 2265
+    params:
+      params.yaml:
+        book_column: ISBN
+        evaluate.k_list:
+        - 5
+        - 10
+        - 20
+        filter_treshold: 10
+        rating_column: Book-Rating
+        user_column: User-ID
+    outs:
+    - path: data/eval/metrics_Hybrid_MF_STransformer.json
+      hash: md5
+      md5: b1a1bb044237dd27eb8887655caab5b5
+      size: 488
