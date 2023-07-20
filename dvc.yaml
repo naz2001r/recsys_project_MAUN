@@ -139,6 +139,23 @@ stages:
     - train.test_file
     - train.val_file
 
+  train_hybrid_MF_stransformer:
+    cmd: python src/steps/train_hybrid_MF_stransformer.py data/split
+    deps:
+    - data/split/train.csv
+    - data/split/test.csv
+    - src/steps/train_hybrid_MF_stransformer.py
+    outs:
+    - data/models/Hybrid_MF_STransformer
+    params:
+    - filter_treshold
+    - user_column
+    - book_column
+    - rating_column
+    - train.train_file
+    - train.test_file
+    - train.val_file
+
   evaluate_baseline_model:
     cmd: python src/steps/evaluate.py data/split/test.csv data/prepared/preprocessed.csv baseline
     deps:
@@ -239,4 +256,21 @@ stages:
     - evaluate.k_list
     metrics:
     - data/eval/metrics_ContentBasedFiltering.json:
+        cache: false
+
+  evaluate_hybrid_MF_stransformer:
+    cmd: python src/steps/evaluate.py data/split/test.csv data/prepared/preprocessed.csv Hybrid_MF_STransformer
+    deps:
+    - data/split/test.csv
+    - data/prepared/preprocessed.csv
+    - src/steps/evaluate.py
+    - data/models/Hybrid_MF_STransformer
+    params:
+    - filter_treshold
+    - user_column
+    - book_column
+    - rating_column
+    - evaluate.k_list
+    metrics:
+    - data/eval/metrics_Hybrid_MF_STransformer.json:
         cache: false
