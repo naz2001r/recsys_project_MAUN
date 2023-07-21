@@ -31,13 +31,16 @@ We are using poetry to manage dependencies.
 
 EDA jupyter notebook is in /data/notebooks folder. **Note:** EDA will be available after `dvc pull -v`
 
+**The final report** and **Online Methodology** are in one file in the folder `report`.
+
 **Models developed:**
 - Baseline model
 - Collaborative filtering
 - Content-base filtering
 - Matrix factorization
 - Content-base Sentence Transformer recomender
-- Super-duper hybrid NN+Sentence Transformer recommender
+- Super-duper hybrid NN + Sentence Transformer recommender
+- Hybrid Matrix factorization + Sentence Transformer recommender
 
 **Inference app**
 !NB Pull dvc pipeline first.
@@ -50,7 +53,7 @@ Inference usage example:
 
 **Contributors:**
 - Nazarii Drushchak
-- Alexander Vashchuk
+- Oleksandr Vashchuk
 - Marianna Kovalova
 - Uliana Zbezhkhovska
 
