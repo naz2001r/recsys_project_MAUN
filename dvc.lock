@@ -229,12 +229,12 @@ stages:
     deps:
     - path: data/split/train.csv
       hash: md5
-      md5: 00ffb1139832dd3af8419068aff0e7a3
-      size: 13922831
+      md5: 8e9c6660879bef8756c70e9badde2268
+      size: 15962532
     - path: data/split/val.csv
       hash: md5
-      md5: b633a7229571d145f64753121cd3eba0
-      size: 2653068
+      md5: dc639b23b667ffaca7de8b419dc22043
+      size: 3533856
     - path: src/steps/train_hybrid_nn_model.py
       hash: md5
       md5: c8a381c82eb90b516a2fc3be745b0aed
@@ -246,7 +246,7 @@ stages:
         rating_column: Book-Rating
         train.min_delta: 0.001
         train.num_epochs: 100
-        train.patience: 5
+        train.patience: 3
         train.test_file: test.csv
         train.train_file: train.csv
         train.val_file: val.csv
@@ -254,8 +254,8 @@ stages:
     outs:
     - path: data/models/HybridNNmodel
       hash: md5
-      md5: a1f3c2452c34e9cd5c701370dfb64c81.dir
-      size: 169561104
+      md5: 77bddc9556ab860a949b4f5c3581f0a2.dir
+      size: 141934277
       nfiles: 1
   train_content_based:
     cmd: python src/steps/train_content_based_filtering.py data/split
@@ -365,36 +365,36 @@ stages:
     deps:
     - path: data/models/HybridNNmodel
       hash: md5
-      md5: a1f3c2452c34e9cd5c701370dfb64c81.dir
-      size: 169561104
+      md5: 77bddc9556ab860a949b4f5c3581f0a2.dir
+      size: 141934277
       nfiles: 1
     - path: data/prepared/preprocessed.csv
       hash: md5
-      md5: a40b5b784490cfce142b02de952d6467
-      size: 51277465
+      md5: 2519acedafce6857071d32141a1ffdb4
+      size: 74691779
     - path: data/split/test.csv
       hash: md5
-      md5: d2ca65c19a28331032ee7f6ee54e6f1b
-      size: 1840883
+      md5: 6cd07a18410f667d98efe93b4e76e075
+      size: 2166014
     - path: src/steps/evaluate.py
       hash: md5
-      md5: 03085bf35b6cd12075ed5fa5c2909525
-      size: 2265
+      md5: 8d40ac4d577e25c3f54359d06b0f3e3b
+      size: 2307
     params:
       params.yaml:
         book_column: ISBN
         evaluate.k_list:
+        - 5
         - 10
         - 20
-        - 100
         filter_treshold: 10
         rating_column: Book-Rating
         user_column: User-ID
     outs:
     - path: data/eval/metrics_HybridNNmodel.json
       hash: md5
-      md5: 2aa8f8fb87d7d265fddf3308cd2910b7
-      size: 479
+      md5: 29e42a105d122e318a97839decbcb8ae
+      size: 473
   evaluate_factorization:
     cmd: python src/steps/evaluate.py data/split/test.csv data/prepared/preprocessed.csv
       MatrixFactorization
